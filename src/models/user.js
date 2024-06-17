@@ -12,7 +12,7 @@ const User = sequelizeInstance.define("User", {
   fullname: {
     type: DataTypes.STRING(40),
     allowNull: false,
-    validate: { isAlpha: true },
+    validate: { max: 40 },
   },
 
   email: {
