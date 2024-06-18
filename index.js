@@ -13,6 +13,10 @@ const app = express();
 
 app.use(express.json());
 
+// app.use((req, res, next) => {
+//   console.log("HTTP Method - " + req.method + ", URL -" + req.url);
+// });
+
 app.use(cors());
 
 // connect();
@@ -22,7 +26,7 @@ app.use("/api/address", require("./src/routes/address"));
 
 try {
   sequelizeInstance.authenticate();
-  sequelizeInstance.sync({ force: true });
+  sequelizeInstance.sync({ force: false });
   console.log("Connected to DB");
 } catch (error) {
   console.error("Failed to connect DB", error);

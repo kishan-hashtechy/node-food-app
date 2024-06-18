@@ -1,58 +1,51 @@
 const User = require("../models/user");
-const Address = require("../models/address");
 const yup = require("yup");
-
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const {
   hashPassword,
   comparePassword,
 } = require("../libs/helpers/passwordHasher");
-const { where } = require("sequelize");
-const { use } = require("../routes/users");
 
 //@desc User SIGNUP
 //@route POST / api/user/signup
 //@access public
 
-const Signup = async (req, res) => {
+const signUp = async (req, res) => {
   try {
-    const {
-      fullname,
-      email,
-      password,
-      mobileno,
-      gender,
+    const { fullName, email, password, mobileNumber, gender } = req.body;
 
-      // dob,
-    } = req.body;
-
-    const UserSignupSchema = yup.object({
+    const userSignupSchema = yup.object({
       email: yup
         .string()
         .email("Invalid Email")
         .required("Please enter your email"),
-      fullname: yup.string().required("Please enter your full name"),
+      fullName: yup.string().min(4).required("Please enter your full name"),
       password: yup.string().min(6).required("Please enter your password"),
-      mobileno: yup.string().required("Please enter your mobileno"),
+      mobileNumber: yup.string().required("Please enter your mobile number"),
       gender: yup.string().required("Please enter your gender"),
-      // profile_image: string(),
-      // dob: yup.date(),
     });
 
-    // const hashedPassword = await hashPassword(password);
-    const UserData = {
-      fullname,
+    await userSignupSchema.validate({
       email,
+      fullName,
       password,
-      mobileno,
+      mobileNumber,
       gender,
+    });
+    const hashedPassword = await hashPassword(password);
 
-      // dob,
-      userstatus: "Active",
+    const UserData = {
+      fullName,
+      email,
+      password: hashedPassword,
+      mobileNumber,
+      gender,
+      userStatus: "Active",
     };
 
     const isAlreadyExits = await User.findOne({ where: { email } });
 
-    // console.log(isAlreadyExits);
     if (isAlreadyExits) {
       return res.status(400).json({ message: "Email already exists" });
     }
@@ -66,29 +59,61 @@ const Signup = async (req, res) => {
         .json({ message: "Something went wrong", code: 404 });
     }
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// @DESC: SingIn User
+
+const signIn = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "All fields are mandatory!!" });
+    }
+
+    const user = await User.findOne({ where: { email } });
+    const isPasswordValid = await comparePassword(password, user?.password);
+
+    if (user && isPasswordValid) {
+      const accessToken = jwt.sign(
+        {
+          user: { email: user.email, id: user.id },
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "15m" }
+      );
+
+      return res.json({
+        message: "Login Successfully",
+        data: { accessToken, user },
+        code: 200,
+      });
+    } else {
+      return res.json({ message: "Invalid email or password.", code: 400 });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error!!" });
   }
 };
 
 // UPDATE
 
-const UpdateUser = async (req, res) => {
+const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
     const {
-      fullname,
+      fullName,
       email,
       password,
-      mobileno,
+      mobileNumber,
       gender,
-      profile_image,
+      userProfile,
       address,
       dob,
-      status,
     } = req.body;
-
-    console.log(userId);
 
     const data = req.body;
     const record = await User.findOne({
@@ -96,8 +121,6 @@ const UpdateUser = async (req, res) => {
         id: userId,
       },
     });
-
-    // console.log(record);
 
     // const UserUpdateSchema = yup.object({
     //   email: yup
@@ -132,10 +155,16 @@ const UpdateUser = async (req, res) => {
 };
 
 // GET
-const GetUser = async (req, res) => {
+const getUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log(userId);
+
+    if (!userId) {
+      return res.json({
+        code: 400,
+        message: "user id not found",
+      });
+    }
 
     const record = await User.findOne({
       where: {
@@ -153,20 +182,22 @@ const GetUser = async (req, res) => {
       return res.json({ message: "Something went wrong !!!", code: 404 });
     }
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
 // DELETE
-const DeleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
 
     //validation
-    const UserDeleteSchema = yup.object({
-      id: yup.string().required("User Id required"),
-    });
+    if (!userId) {
+      return res.json({
+        code: 400,
+        message: "user Id not found",
+      });
+    }
 
     const response = await User.destroy({
       where: {
@@ -180,9 +211,8 @@ const DeleteUser = async (req, res) => {
       return res.json({ message: "Something went wrong !!!", code: 404 });
     }
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-module.exports = { Signup, UpdateUser, GetUser, DeleteUser };
+module.exports = { signUp, updateUser, getUser, deleteUser, signIn };
