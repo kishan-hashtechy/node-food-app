@@ -1,9 +1,7 @@
 const express = require("express");
 const cors = require("cors");
+var bodyParser = require('body-parser')
 const sequelizeInstance = require("./src/libs/common/connect");
-const { hashPassword } = require("./src/libs/helpers/passwordHasher");
-const User = require("./src/models/user");
-const { Op } = require("sequelize");
 
 if (process.env.NODE_EVN != "production") {
   require("dotenv").config();
@@ -12,14 +10,10 @@ if (process.env.NODE_EVN != "production") {
 const app = express();
 
 app.use(express.json());
-
-// app.use((req, res, next) => {
-//   console.log("HTTP Method - " + req.method + ", URL -" + req.url);
-// });
+app.use(express.static('public'))
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors());
-
-// connect();
 
 app.use("/api/users", require("./src/routes/users"));
 app.use("/api/address", require("./src/routes/address"));

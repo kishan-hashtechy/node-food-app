@@ -23,6 +23,7 @@ const signUp = async (req, res) => {
       fullName: yup.string().min(4).required("Please enter your full name"),
       password: yup.string().min(6).required("Please enter your password"),
       mobileNumber: yup.string().required("Please enter your mobile number"),
+      mobileNumber: yup.string().required("Please enter your mobile number"),
       gender: yup.string().required("Please enter your gender"),
     });
 
@@ -37,10 +38,12 @@ const signUp = async (req, res) => {
 
     const UserData = {
       fullName,
+      fullName,
       email,
       password: hashedPassword,
       mobileNumber,
       gender,
+      userStatus: "Active",
       userStatus: "Active",
     };
 
@@ -54,9 +57,7 @@ const signUp = async (req, res) => {
     if (response) {
       return res.status(200).json({ message: "Signup successfully", response });
     } else {
-      return res
-        .status(400)
-        .json({ message: "Something went wrong", code: 404 });
+      return res.status(400).json({ message: "Something went wrong", code: 404 });
     }
   } catch (error) {
     console.log(error);
@@ -106,10 +107,13 @@ const updateUser = async (req, res) => {
     const userId = req.params.id;
     const {
       fullName,
+      fullName,
       email,
       password,
       mobileNumber,
+      mobileNumber,
       gender,
+      userProfile,
       userProfile,
       address,
       dob,
