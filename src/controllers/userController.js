@@ -2,10 +2,7 @@ const User = require("../models/user");
 const yup = require("yup");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const {
-  hashPassword,
-  comparePassword,
-} = require("../libs/helpers/passwordHasher");
+const {hashPassword, comparePassword} = require("../libs/helpers/passwordHasher");
 
 //@desc User SIGNUP
 //@route POST / api/user/signup
@@ -38,12 +35,10 @@ const signUp = async (req, res) => {
 
     const UserData = {
       fullName,
-      fullName,
       email,
       password: hashedPassword,
       mobileNumber,
       gender,
-      userStatus: "Active",
       userStatus: "Active",
     };
 
@@ -107,13 +102,10 @@ const updateUser = async (req, res) => {
     const userId = req.params.id;
     const {
       fullName,
-      fullName,
       email,
       password,
       mobileNumber,
-      mobileNumber,
       gender,
-      userProfile,
       userProfile,
       address,
       dob,
@@ -219,4 +211,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { signUp, updateUser, getUser, deleteUser, signIn };
+module.exports = { signUp, updateUser, getUser, deleteUser, signIn};

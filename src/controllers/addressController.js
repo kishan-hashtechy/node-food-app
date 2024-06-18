@@ -37,7 +37,7 @@ const addAddress = async (req, res) => {
       city,
       type,
       receiverName,
-      receiverContactno,
+      receiverNumber,
     };
 
     // const isAlreadyExits = await Address.findOne({ where: { userId } });
