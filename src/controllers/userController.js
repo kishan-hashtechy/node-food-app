@@ -2,7 +2,10 @@ const User = require("../models/user");
 const yup = require("yup");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const {hashPassword, comparePassword} = require("../libs/helpers/passwordHasher");
+const {
+  hashPassword,
+  comparePassword,
+} = require("../libs/helpers/passwordHasher");
 
 //@desc User SIGNUP
 //@route POST / api/user/signup
@@ -10,7 +13,7 @@ const {hashPassword, comparePassword} = require("../libs/helpers/passwordHasher"
 
 const signUp = async (req, res) => {
   try {
-    const { fullName, email, password, mobileNumber, gender } = req.body;
+    const { fullName, email, password } = req.body;
 
     const userSignupSchema = yup.object({
       email: yup
@@ -19,17 +22,16 @@ const signUp = async (req, res) => {
         .required("Please enter your email"),
       fullName: yup.string().min(4).required("Please enter your full name"),
       password: yup.string().min(6).required("Please enter your password"),
-      mobileNumber: yup.string().required("Please enter your mobile number"),
-      mobileNumber: yup.string().required("Please enter your mobile number"),
-      gender: yup.string().required("Please enter your gender"),
+      // mobileNumber: yup.string().required("Please enter your mobile number"),
+      // gender: yup.string().required("Please enter your gender"),
     });
 
     await userSignupSchema.validate({
       email,
       fullName,
       password,
-      mobileNumber,
-      gender,
+      // mobileNumber,
+      // gender,
     });
     const hashedPassword = await hashPassword(password);
 
@@ -37,8 +39,8 @@ const signUp = async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
-      mobileNumber,
-      gender,
+      // mobileNumber,
+      // gender,
       userStatus: "Active",
     };
 
@@ -47,16 +49,21 @@ const signUp = async (req, res) => {
     if (isAlreadyExits) {
       return res.status(400).json({ message: "Email already exists" });
     }
+
     const response = await User.create(UserData);
+
+    console.log(response);
 
     if (response) {
       return res.status(200).json({ message: "Signup successfully", response });
     } else {
-      return res.status(400).json({ message: "Something went wrong", code: 404 });
+      return res
+        .status(400)
+        .json({ message: "Something went wrong", code: 404 });
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
@@ -78,7 +85,7 @@ const signIn = async (req, res) => {
           user: { email: user.email, id: user.id },
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "15m" }
+        { expiresIn: 24 * 60 * 60 }
       );
 
       return res.json({
@@ -211,4 +218,4 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { signUp, updateUser, getUser, deleteUser, signIn};
+module.exports = { signUp, updateUser, getUser, deleteUser, signIn };

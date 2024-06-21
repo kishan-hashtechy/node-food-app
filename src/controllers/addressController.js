@@ -3,6 +3,7 @@ const Address = require("../models/address");
 const User = require("../models/user");
 const yup = require("yup");
 const { json } = require("sequelize");
+const jwt = require("jsonwebtoken");
 
 const addAddress = async (req, res) => {
   try {
@@ -16,6 +17,14 @@ const addAddress = async (req, res) => {
       receiverName,
       receiverNumber,
     } = req.body;
+    const token = req.headers.authorization;
+    const userData = jwt.decode(token);
+    console.log(userData);
+    if (!userData) {
+      return res
+        .status(400)
+        .send({ message: "Invaild or not found user data..." });
+    }
 
     const addAddressSchema = yup.object({
       addressLine1: yup.string().required("Please enter your address"),
@@ -30,7 +39,7 @@ const addAddress = async (req, res) => {
     await addAddressSchema.validate(req.body);
 
     const addressData = {
-      userId,
+      userId: userData?.user?.id,
       addressLine1,
       addressLine2,
       pincode,
@@ -69,6 +78,7 @@ const addAddress = async (req, res) => {
 const updateAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
+    console.log(addressId);
     const {
       addressLine1,
       addressLine2,
@@ -86,14 +96,14 @@ const updateAddress = async (req, res) => {
         id: addressId,
       },
     });
-
+    console.log(record);
     if (record) {
       const response = await Address.update(data, { where: { id: addressId } });
       if (response) {
         return res.json({ message: "Address Update !!", code: 200, response });
       }
     } else {
-      return res.json({ message: "Something went wrong !!!", code: 404 });
+      return res.json({ message: "No record found", code: 404 });
     }
   } catch (error) {
     return res.status(500).json({ message: "Internal Server Error" });
@@ -101,31 +111,30 @@ const updateAddress = async (req, res) => {
 };
 
 //GET
-const getAddress = async (req, res) => {
+const getAllAddress = async (req, res) => {
   try {
-    const userId = req.params.id;
-
+    const userId = req.userId;
     if (!userId) {
-      return json({
+      return res.json({
         code: 400,
         message: "user id not found",
       });
     }
 
-    const record = await User.findOne({
+    const record = await Address.findAll({
       where: {
-        id: userId,
+        userId,
       },
     });
 
-    if (record) {
+    if (record.length) {
       return res.json({
         message: "Successfully GET",
         data: record,
         code: 200,
       });
     } else {
-      return res.json({ message: "Something went wrong !!!", code: 404 });
+      return res.json({ message: "No data found", code: 404 });
     }
   } catch (error) {
     console.log(error);
@@ -133,10 +142,38 @@ const getAddress = async (req, res) => {
   }
 };
 
+// GET-SINGLE-ADDRESS
+
+const getSingleAddress = async (req, res) => {
+  try {
+    const addressId = req.params.id;
+
+    if (!addressId) {
+      return res.json({ message: "Address is not found", code: 400 });
+    }
+
+    const record = await Address.findOne({
+      where: {
+        id: addressId,
+      },
+    });
+
+    if (record) {
+      return res.json({ message: "Successfull get", data: record, code: 200 });
+    } else {
+      return res.json({ message: "No data found", code: 404 });
+    }
+  } catch (error) {
+    return res.json({ message: "Internal server error!!!", code: 500 });
+  }
+};
+
 //DELETE
 const deleteAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
+    const token = req.headers.authorization;
+    const userData = jwt.decode(token);
     //validation
     if (addressId) {
       return json({
@@ -162,4 +199,10 @@ const deleteAddress = async (req, res) => {
   }
 };
 
-module.exports = { addAddress, updateAddress, getAddress, deleteAddress };
+module.exports = {
+  addAddress,
+  updateAddress,
+  getAllAddress,
+  getSingleAddress,
+  deleteAddress,
+};
