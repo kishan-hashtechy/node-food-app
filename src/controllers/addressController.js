@@ -90,15 +90,17 @@ const updateAddress = async (req, res) => {
     } = req.body;
 
     const data = req.body;
+    console.log(data);
 
     const record = await Address.findOne({
       where: {
         id: addressId,
       },
     });
-    console.log(record);
+
     if (record) {
       const response = await Address.update(data, { where: { id: addressId } });
+      console.log(response);
       if (response) {
         return res.json({ message: "Address Update !!", code: 200, response });
       }
@@ -106,6 +108,7 @@ const updateAddress = async (req, res) => {
       return res.json({ message: "No record found", code: 404 });
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
