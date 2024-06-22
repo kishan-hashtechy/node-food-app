@@ -30,7 +30,6 @@ const User = sequelizeInstance.define("User", {
 
   mobileNumber: {
     type: DataTypes.STRING(10),
-    allowNull: false,
     validate: {
       is: /^[6-9]\d{0,9}$/,
     },

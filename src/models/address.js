@@ -44,9 +44,6 @@ const Address = sequelizeInstance.define("Address", {
   reciverNumber: {
     type: DataTypes.STRING(10),
     allowNull: true,
-    validate: {
-      is: /^[6-9]\d{0,9}$/,
-    },
   },
 
   userId: {
