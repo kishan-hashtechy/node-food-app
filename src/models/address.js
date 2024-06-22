@@ -56,6 +56,5 @@ const Address = sequelizeInstance.define("Address", {
   },
 });
 
-// User.hasMany(Address, { foreignKey: "userId" });
-
+// User.hasMany(Address, { foreignKey: "userId", as: "addresses" });
 module.exports = Address;

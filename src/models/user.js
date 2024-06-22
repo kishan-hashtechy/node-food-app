@@ -57,6 +57,4 @@ const User = sequelizeInstance.define("User", {
   },
 });
 
-Address.belongsTo(User, { foreignKey: "userId" });
-
 module.exports = User;
