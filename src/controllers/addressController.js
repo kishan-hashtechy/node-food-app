@@ -2,10 +2,9 @@ const { string } = require("joi");
 const Address = require("../models/address");
 const User = require("../models/user");
 const yup = require("yup");
-const { ENUM } = require("sequelize");
-const { use } = require("../routes/users");
+const { json } = require("sequelize");
 
-const AddAddress = async (req, res) => {
+const addAddress = async (req, res) => {
   try {
     const {
       userId,
@@ -14,18 +13,21 @@ const AddAddress = async (req, res) => {
       pincode,
       city,
       type,
-      receiver_name,
-      receiver_contactno,
+      receiverName,
+      receiverNumber,
     } = req.body;
 
-    const AddAddressSchema = yup.object({
+    const addAddressSchema = yup.object({
       addressLine1: yup.string().required("Please enter your address"),
+      addressLine2: yup.string(),
       pincode: yup.string().required("Please enter your pincode"),
       city: yup.string().required("Please enter your city"),
       type: yup.string().required("Please enter your address type"),
-      receiver_name: yup.string(),
-      receiver_contactno: yup.string(),
+      recuverName: yup.string(),
+      receiverNumber: yup.string(),
     });
+
+    await addAddressSchema.validate(req.body);
 
     const addressData = {
       userId,
@@ -34,8 +36,8 @@ const AddAddress = async (req, res) => {
       pincode,
       city,
       type,
-      receiver_name,
-      receiver_contactno,
+      receiverName,
+      receiverNumber,
     };
 
     // const isAlreadyExits = await Address.findOne({ where: { userId } });
@@ -64,7 +66,7 @@ const AddAddress = async (req, res) => {
 };
 
 //UPDATE
-const UpdateAddress = async (req, res) => {
+const updateAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
     const {
@@ -73,18 +75,17 @@ const UpdateAddress = async (req, res) => {
       pincode,
       city,
       type,
-      receiver_name,
-      receiver_contactno,
+      receiverName,
+      receiverNumber,
     } = req.body;
 
     const data = req.body;
+
     const record = await Address.findOne({
       where: {
         id: addressId,
       },
     });
-
-    console.log(record);
 
     if (record) {
       const response = await Address.update(data, { where: { id: addressId } });
@@ -100,10 +101,16 @@ const UpdateAddress = async (req, res) => {
 };
 
 //GET
-const GetAddress = async (req, res) => {
+const getAddress = async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log(userId);
+
+    if (!userId) {
+      return json({
+        code: 400,
+        message: "user id not found",
+      });
+    }
 
     const record = await User.findOne({
       where: {
@@ -127,21 +134,22 @@ const GetAddress = async (req, res) => {
 };
 
 //DELETE
-const DeleteAddress = async (req, res) => {
+const deleteAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
     //validation
-    const UserDeleteSchema = yup.object({
-      id: yup.string().required("Address Id required"),
-    });
+    if (addressId) {
+      return json({
+        code: 400,
+        message: "user id not found",
+      });
+    }
 
     const response = await Address.destroy({
       where: {
         id: addressId,
       },
     });
-
-    console.log(response);
 
     if (response) {
       return res.json({ message: "Address deleted !!", code: 200 });
@@ -154,4 +162,4 @@ const DeleteAddress = async (req, res) => {
   }
 };
 
-module.exports = { AddAddress, UpdateAddress, GetAddress, DeleteAddress };
+module.exports = { addAddress, updateAddress, getAddress, deleteAddress };

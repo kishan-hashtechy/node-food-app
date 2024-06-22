@@ -9,7 +9,7 @@ const User = sequelizeInstance.define("User", {
     primaryKey: true,
   },
 
-  fullname: {
+  fullName: {
     type: DataTypes.STRING(40),
     allowNull: false,
     validate: { max: 40 },
@@ -23,12 +23,12 @@ const User = sequelizeInstance.define("User", {
   },
 
   password: {
-    type: DataTypes.STRING(30),
+    type: DataTypes.STRING(300),
     allowNull: false,
-    validate: { max: 30, min: 5 },
+    validate: { max: 300, min: 5 },
   },
 
-  mobileno: {
+  mobileNumber: {
     type: DataTypes.STRING(10),
     allowNull: false,
     validate: {
@@ -36,9 +36,8 @@ const User = sequelizeInstance.define("User", {
     },
   },
 
-  profileimage: {
+  userProfile: {
     type: DataTypes.STRING,
-    // allow null true
     allowNull: true,
   },
 
@@ -53,7 +52,7 @@ const User = sequelizeInstance.define("User", {
     validate: { isDate: true },
   },
 
-  userstatus: {
+  userStatus: {
     type: DataTypes.ENUM("Active", "Inactive"),
     allowNull: true,
   },
