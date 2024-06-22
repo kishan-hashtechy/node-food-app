@@ -22,10 +22,10 @@ const Order = sequelizeInstance.define("Food", {
 
   delivery_status: {
     type: DataTypes.ENUM(
-      "Ready for delivery",
-      "Delevered",
+      "Ready-for-delivery",
+      "Delivered",
       "Rejected",
-      "On the way "
+      "On-the-way "
     ),
     allowNull: false,
   },

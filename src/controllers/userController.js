@@ -47,23 +47,18 @@ const signUp = async (req, res) => {
     const isAlreadyExits = await User.findOne({ where: { email } });
 
     if (isAlreadyExits) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res.status(400).send({ message: "Email already exists" });
     }
 
     const response = await User.create(UserData);
 
-    console.log(response);
-
     if (response) {
-      return res.status(200).json({ message: "Signup successfully", response });
+      return res.status(200).send({ message: "Signup successfully", response });
     } else {
-      return res
-        .status(400)
-        .json({ message: "Something went wrong", code: 404 });
+      return res.status(400).send({ message: "Something went wrong" });
     }
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal Server Error", error });
+    return res.status(500).send({ message: "Internal Server Error", error });
   }
 };
 
@@ -72,11 +67,13 @@ const signUp = async (req, res) => {
 const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     if (!email || !password) {
-      return res.status(400).json({ message: "All fields are mandatory!!" });
+      return res.status(400).send({ message: "All fields are mandatory!!" });
     }
 
     const user = await User.findOne({ where: { email } });
+
     const isPasswordValid = await comparePassword(password, user?.password);
 
     if (user && isPasswordValid) {
@@ -88,17 +85,14 @@ const signIn = async (req, res) => {
         { expiresIn: 24 * 60 * 60 }
       );
 
-      return res.json({
-        message: "Login Successfully",
-        data: { accessToken, user },
-        code: 200,
-      });
+      return res
+        .status(200)
+        .send({ message: "Login Successfully", data: { accessToken, user } });
     } else {
-      return res.json({ message: "Invalid email or password.", code: 400 });
+      return res.status(400).send({ message: "Invalid email or password." });
     }
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal server error!!" });
+    return res.status(500).send({ message: "Internal server error!!" });
   }
 };
 
@@ -125,35 +119,17 @@ const updateUser = async (req, res) => {
       },
     });
 
-    // const UserUpdateSchema = yup.object({
-    //   email: yup
-    //     .string()
-    //     .email("Invalid Email")
-    //     .required("Please enter your email"),
-    //   fullname: yup.string().required("Please enter your full name"),
-    //   password: yup.string().min(6).required("Please enter your password"),
-    //   mobileno: yup.string().required("Please enter your mobileno"),
-    //   gender: yup.enum().required("Please enter your gender"),
-    //   profile_image: string().required("Please select your image"),
-    //   addressline1: yup.string().required(),
-    //   addressline2: yup.string().required(),
-    //   pincode: yup.string().required("Please enter your pincode"),
-    //   type: yup.enum().required("Please select your address type"),
-    //   city: yup.string().required("Please enter your city"),
-    //   dob: yup.date().required("Please enter your date of birth"),
-    // });
-
     if (record) {
       const response = await User.update(data, { where: { id: userId } });
 
       if (response) {
-        return res.json({ message: "User Update !!", code: 200, response });
+        return res.status(200).send({ message: "User Update !!", response });
       }
     } else {
-      return res.json({ message: "Something went wrong !!!", code: 404 });
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
@@ -163,10 +139,7 @@ const getUser = async (req, res) => {
     const userId = req.params.id;
 
     if (!userId) {
-      return res.json({
-        code: 400,
-        message: "user id not found",
-      });
+      return res.status(400).send({ message: "user id not found" });
     }
 
     const record = await User.findOne({
@@ -176,16 +149,14 @@ const getUser = async (req, res) => {
     });
 
     if (record) {
-      return res.json({
-        message: "Successfully GET",
-        data: record,
-        code: 200,
-      });
+      return res
+        .status(200)
+        .send({ message: "Successfully GET", data: record });
     } else {
-      return res.json({ message: "Something went wrong !!!", code: 404 });
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (error) {
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
@@ -196,10 +167,7 @@ const deleteUser = async (req, res) => {
 
     //validation
     if (!userId) {
-      return res.json({
-        code: 400,
-        message: "user Id not found",
-      });
+      return res.status(400).send({ message: "user Id not found" });
     }
 
     const response = await User.destroy({
@@ -209,12 +177,12 @@ const deleteUser = async (req, res) => {
     });
 
     if (response) {
-      return res.json({ message: "User deleted !!", code: 200 });
+      return res.status(200).send({ message: "User deleted !!" });
     } else {
-      return res.json({ message: "Something went wrong !!!", code: 404 });
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (error) {
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).send({ message: "Internal server error" });
   }
 };
 

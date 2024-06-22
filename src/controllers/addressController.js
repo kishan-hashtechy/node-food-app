@@ -19,7 +19,7 @@ const addAddress = async (req, res) => {
     } = req.body;
     const token = req.headers.authorization;
     const userData = jwt.decode(token);
-    console.log(userData);
+
     if (!userData) {
       return res
         .status(400)
@@ -49,28 +49,19 @@ const addAddress = async (req, res) => {
       receiverNumber,
     };
 
-    // const isAlreadyExits = await Address.findOne({ where: { userId } });
-
-    // if (isAlreadyExits) {
-    //   return res.status(400).json({ message: "userid already exists" });
-    // }
-
     const response = await Address.create(addressData);
 
     if (response) {
       return res
         .status(200)
-        .json({ message: "Address add successfully", response });
+        .send({ message: "Address add successfully", response });
     } else {
-      return res
-        .status(400)
-        .json({ message: "Something went wrong", code: 404 });
+      return res.status(400).send({ message: "Something went wrong" });
     }
   } catch (error) {
-    console.log(error);
     return res
       .status(500)
-      .json({ message: error.message || "Internal Server Error" });
+      .send({ message: error.message || "Internal Server Error" });
   }
 };
 
@@ -78,7 +69,7 @@ const addAddress = async (req, res) => {
 const updateAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
-    console.log(addressId);
+
     const {
       addressLine1,
       addressLine2,
@@ -90,7 +81,6 @@ const updateAddress = async (req, res) => {
     } = req.body;
 
     const data = req.body;
-    console.log(data);
 
     const record = await Address.findOne({
       where: {
@@ -100,16 +90,15 @@ const updateAddress = async (req, res) => {
 
     if (record) {
       const response = await Address.update(data, { where: { id: addressId } });
-      console.log(response);
+
       if (response) {
-        return res.json({ message: "Address Update !!", code: 200, response });
+        return res.status(200).send({ message: "Address Update !!", response });
       }
     } else {
-      return res.json({ message: "No record found", code: 404 });
+      return res.status(404).send({ message: "No record found" });
     }
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
@@ -118,10 +107,7 @@ const getAllAddress = async (req, res) => {
   try {
     const userId = req.userId;
     if (!userId) {
-      return res.json({
-        code: 400,
-        message: "user id not found",
-      });
+      return res.status(400).send({ message: "user id not found" });
     }
 
     const record = await Address.findAll({
@@ -131,17 +117,14 @@ const getAllAddress = async (req, res) => {
     });
 
     if (record.length) {
-      return res.json({
-        message: "Successfully GET",
-        data: record,
-        code: 200,
-      });
+      return res
+        .status(200)
+        .send({ message: "Successfully GET", data: record });
     } else {
-      return res.json({ message: "No data found", code: 404 });
+      return res.status(404).send({ message: "No data found" });
     }
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).send({ message: "Internal Server Error" });
   }
 };
 
@@ -152,7 +135,7 @@ const getSingleAddress = async (req, res) => {
     const addressId = req.params.id;
 
     if (!addressId) {
-      return res.json({ message: "Address is not found", code: 400 });
+      return res.status(400).send({ message: "Address is not found" });
     }
 
     const record = await Address.findOne({
@@ -162,12 +145,14 @@ const getSingleAddress = async (req, res) => {
     });
 
     if (record) {
-      return res.json({ message: "Successfull get", data: record, code: 200 });
+      return res.status(200).send({ message: "Successfull get", data: record });
     } else {
-      return res.json({ message: "No data found", code: 404 });
+      return res.status(404).send({ message: "No data found", code: 404 });
     }
   } catch (error) {
-    return res.json({ message: "Internal server error!!!", code: 500 });
+    return res
+      .status(500)
+      .send({ message: "Internal server error!!!", code: 500 });
   }
 };
 
@@ -179,10 +164,7 @@ const deleteAddress = async (req, res) => {
     const userData = jwt.decode(token);
     //validation
     if (addressId) {
-      return json({
-        code: 400,
-        message: "user id not found",
-      });
+      return res.status(400).send({ message: "user id not found" });
     }
 
     const response = await Address.destroy({
@@ -192,13 +174,12 @@ const deleteAddress = async (req, res) => {
     });
 
     if (response) {
-      return res.json({ message: "Address deleted !!", code: 200 });
+      return res.status(200).send({ message: "Address deleted !!" });
     } else {
-      return res.json({ message: "Something went wrong !!!", code: 404 });
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).send({ message: "Internal server error" });
   }
 };
 
