@@ -1,14 +1,10 @@
-const { string } = require("joi");
 const Address = require("../models/address");
-const User = require("../models/user");
 const yup = require("yup");
-const { json } = require("sequelize");
 const jwt = require("jsonwebtoken");
 
 const addAddress = async (req, res) => {
   try {
     const {
-      userId,
       addressLine1,
       addressLine2,
       pincode,
@@ -17,14 +13,8 @@ const addAddress = async (req, res) => {
       receiverName,
       receiverNumber,
     } = req.body;
-    const token = req.headers.authorization;
-    const userData = jwt.decode(token);
 
-    if (!userData) {
-      return res
-        .status(400)
-        .send({ message: "Invaild or not found user data..." });
-    }
+    const userId = req.userId;
 
     const addAddressSchema = yup.object({
       addressLine1: yup.string().required("Please enter your address"),
@@ -39,7 +29,7 @@ const addAddress = async (req, res) => {
     await addAddressSchema.validate(req.body);
 
     const addressData = {
-      userId: userData?.user?.id,
+      userId,
       addressLine1,
       addressLine2,
       pincode,
@@ -68,6 +58,7 @@ const addAddress = async (req, res) => {
 //UPDATE
 const updateAddress = async (req, res) => {
   try {
+
     const addressId = req.params.id;
 
     const {

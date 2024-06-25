@@ -4,7 +4,7 @@ const User = require("../models/user");
 
 const Order = sequelizeInstance.define("Order", {
   id: {
-    type: DataTypes.INTEGER(10),
+    type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
@@ -20,7 +20,7 @@ const Order = sequelizeInstance.define("Order", {
   },
 
   total_price: {
-    type: DataTypes.INTEGER(100),
+    type: DataTypes.INTEGER,
     allowNull: false,
     validate: { isNumeric: true },
   },

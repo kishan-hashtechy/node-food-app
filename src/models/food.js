@@ -1,4 +1,4 @@
-const { sequelize, DataTypes } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
 
 const Food = sequelizeInstance.define("Food", {
@@ -11,11 +11,10 @@ const Food = sequelizeInstance.define("Food", {
   name: {
     type: DataTypes.STRING(40),
     allowNull: false,
-    validate: { isAlpha: true },
   },
 
   price: {
-    type: DataTypes.INTEGER(100),
+    type: DataTypes.INTEGER,
     allowNull: false,
     validate: { isNumeric: true },
   },
@@ -26,15 +25,14 @@ const Food = sequelizeInstance.define("Food", {
     validate: { min: 10, max: 200 },
   },
 
-  bannerimage: {
+  foodImage: {
     type: DataTypes.STRING,
     allowNull: false,
   },
 
   category: {
-    type: DataTypes.INTEGER(10),
+    type: DataTypes.ENUM("Foods", "Drinks", "Snacks", "Sauce"),
     allowNull: false,
-    validate: { isNumeric: true },
   },
 
   type: {
@@ -44,7 +42,7 @@ const Food = sequelizeInstance.define("Food", {
 
   ratings: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     validate: { isDecimal: true },
   },
 

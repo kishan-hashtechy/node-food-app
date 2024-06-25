@@ -55,6 +55,9 @@ const User = sequelizeInstance.define("User", {
     type: DataTypes.ENUM("Active", "Inactive"),
     allowNull: true,
   },
+  
 });
+
+User.hasMany( Address , { foreignKey: 'userId' });
 
 module.exports = User;
