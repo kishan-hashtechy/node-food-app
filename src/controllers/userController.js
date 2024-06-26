@@ -17,7 +17,7 @@ const Food = require("../models/food");
 
 const signUp = async (req, res) => {
   try {
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password ,userProfile} = req.body;
 
     const userSignupSchema = yup.object({
       email: yup
@@ -26,12 +26,14 @@ const signUp = async (req, res) => {
         .required("Please enter your email"),
       fullName: yup.string().min(4).required("Please enter your full name"),
       password: yup.string().min(6).required("Please enter your password"),
+      userProfile: yup.string().optional(),
     });
 
-    const validateSchema = await userSignupSchema.validate({
+    await userSignupSchema.validate({
       email,
       fullName,
       password,
+      userProfile
     });
 
     const hashedPassword = await hashPassword(password);
@@ -40,6 +42,7 @@ const signUp = async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
+      userProfile,
       userStatus: "Active",
     };
 
@@ -57,6 +60,7 @@ const signUp = async (req, res) => {
       return res.status(400).send({ message: "Something went wrong" });
     }
   } catch (error) {
+    console.log(error)
     return res.status(500).send({ message: "Internal Server Error", error });
   }
 };
@@ -74,7 +78,7 @@ const signIn = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.send({ message: "No user found", code: 404 });
+      return res.status(404).send({ message: "No user found"});
     }
 
     const isPasswordValid = await comparePassword(password, user?.password);
@@ -93,10 +97,9 @@ const signIn = async (req, res) => {
         .send({
           message: "Login Successfully",
           data: { accessToken, user },
-          code: 200,
         });
     } else {
-      return res.send({ message: "Invalid email or password.", code: 400 });
+      return res.send({ message: "Invalid email or password."});
     }
   } catch (error) {
     return res.status(500).send({ message: "Internal server error!!" });
@@ -215,15 +218,14 @@ const searchItems = async (req, res) => {
       },
     });
 
-    if (response) {
+    if (response.rows.length >= 0) {
       return res
         .status(200)
-        .send({ message: "Search successful", data: response.rows, count:response.count, code: 200 });
+        .send({ message: "Search successful", data: response.rows, count:response.count});
     } else {
-      return res.send({ message: "No data found", code: 400 });
+      return res.send({ message: "No data found"});
     }
   } catch (err) {
-    console.log(err)
     return res.status(500).send({ message: "Internal Server Error" });
   }
 };

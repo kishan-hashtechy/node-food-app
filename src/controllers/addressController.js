@@ -16,6 +16,10 @@ const addAddress = async (req, res) => {
 
     const userId = req.userId;
 
+    if(!userId){
+      return res.status(400).send({message:"user Id not found"})
+    }
+
     const addAddressSchema = yup.object({
       addressLine1: yup.string().required("Please enter your address"),
       addressLine2: yup.string(),
@@ -60,6 +64,10 @@ const updateAddress = async (req, res) => {
   try {
 
     const addressId = req.params.id;
+
+    if(!addressId){
+      return res.status(400).send({ message: "address Id not found" })
+    }
 
     const {
       addressLine1,
@@ -138,12 +146,12 @@ const getSingleAddress = async (req, res) => {
     if (record) {
       return res.status(200).send({ message: "Successfull get", data: record });
     } else {
-      return res.status(404).send({ message: "No data found", code: 404 });
+      return res.status(404).send({ message: "No data found"});
     }
   } catch (error) {
     return res
       .status(500)
-      .send({ message: "Internal server error!!!", code: 500 });
+      .send({ message: "Internal server error!!!"});
   }
 };
 

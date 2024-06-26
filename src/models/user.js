@@ -38,6 +38,7 @@ const User = sequelizeInstance.define("User", {
   userProfile: {
     type: DataTypes.STRING,
     allowNull: true,
+    defaultValue: "/profile_img/1719403974239-profileIcon.svg",
   },
 
   gender: {

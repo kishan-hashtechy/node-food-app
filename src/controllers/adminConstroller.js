@@ -31,7 +31,7 @@ const addFood = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Food successfuly added" });
     } else {
-      return res.status(200).send({ message: "something occured", code: 400 });
+      return res.status(400).send({ message: "something occured"});
     }
   } catch (err) {
     console.log(err)
@@ -45,9 +45,9 @@ const getAllFood = async (req, res) => {
     if (response) {
       return res
         .status(200)
-        .send({ message: "Sucessfuly get food", data: response, code: 200 });
+        .send({ message: "Sucessfuly get food", data: response});
     } else {
-      return res.send({ message: "no food found", code: 400 });
+      return res.status(400).send({ message: "no food found"});
     }
   } catch (err) {
     res.status(500).send({ message: "Internal server error" });
