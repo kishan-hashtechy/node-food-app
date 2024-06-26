@@ -9,7 +9,7 @@ const {
 } = require("../controllers/addressController");
 const router = express.Router();
 
-router.post("/add-address", addAddress);
+router.post("/add-address", auth, addAddress);
 router.put("/update-address/:id", auth, updateAddress);
 router.get("/getall-address", auth, getAllAddress);
 router.get("/get-single-address/:id", auth, getSingleAddress);
