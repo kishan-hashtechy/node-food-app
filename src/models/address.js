@@ -1,4 +1,4 @@
-const { sequelize, DataTypes } = require("sequelize");
+const { DataTypes } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
 const User = require("../models/user");
 
@@ -36,12 +36,12 @@ const Address = sequelizeInstance.define("Address", {
     allowNull: true,
   },
 
-  reciverName: {
+  receiverName: {
     type: DataTypes.STRING(40),
     allowNull: true,
   },
 
-  reciverNumber: {
+  receiverNumber: {
     type: DataTypes.STRING(10),
     allowNull: true,
   },
@@ -56,6 +56,6 @@ const Address = sequelizeInstance.define("Address", {
   },
 });
 
-// User.hasMany(Address, { foreignKey: "userId" });
+//User.hasMany(Address, { foreignKey: "id" });
 
 module.exports = Address;

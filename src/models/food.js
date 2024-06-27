@@ -53,3 +53,5 @@ const Food = sequelizeInstance.define("Food", {
     allowNull: false,
   },
 });
+
+module.exports = Food;

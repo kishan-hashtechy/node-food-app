@@ -8,7 +8,6 @@ const jwt = require("jsonwebtoken");
 const addAddress = async (req, res) => {
   try {
     const {
-      userId,
       addressLine1,
       addressLine2,
       pincode,
@@ -17,10 +16,11 @@ const addAddress = async (req, res) => {
       receiverName,
       receiverNumber,
     } = req.body;
-    const token = req.headers.authorization;
-    const userData = jwt.decode(token);
+    //
 
-    if (!userData) {
+    const userId = req.userId;
+
+    if (!userId) {
       return res
         .status(400)
         .send({ message: "Invaild or not found user data..." });
@@ -39,7 +39,7 @@ const addAddress = async (req, res) => {
     await addAddressSchema.validate(req.body);
 
     const addressData = {
-      userId: userData?.user?.id,
+      userId,
       addressLine1,
       addressLine2,
       pincode,
@@ -59,6 +59,7 @@ const addAddress = async (req, res) => {
       return res.status(400).send({ message: "Something went wrong" });
     }
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .send({ message: error.message || "Internal Server Error" });

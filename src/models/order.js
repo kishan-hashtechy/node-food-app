@@ -1,23 +1,12 @@
 const { sequelize, DataTypes } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
+const User = require("../models/user");
 
-const Order = sequelizeInstance.define("Food", {
+const Order = sequelizeInstance.define("Order", {
   id: {
     type: DataTypes.INTEGER(10),
     autoIncrement: true,
     primaryKey: true,
-  },
-
-  items: {
-    type: DataTypes.STRING(20),
-    allowNull: false,
-    validate: { isAlpha: true },
-  },
-
-  no_of_items: {
-    type: DataTypes.INTEGER(20),
-    allowNull: false,
-    validate: { isNumeric: true },
   },
 
   delivery_status: {
@@ -47,3 +36,7 @@ const Order = sequelizeInstance.define("Food", {
     validate: { isAlpha: true },
   },
 });
+
+Order.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+module.exports = Order;
