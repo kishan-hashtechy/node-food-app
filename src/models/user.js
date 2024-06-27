@@ -59,6 +59,12 @@ const User = sequelizeInstance.define("User", {
   
 });
 
-User.hasMany( Address , { foreignKey: 'userId' });
+// Here pelase check proper relationships working or not... 
+// User.hasMany( Address , { foreignKey: 'userId' });
+User.hasMany(Address, {
+  foreignKey: "userId",
+  as: "addresses",
+});
+
 
 module.exports = User;

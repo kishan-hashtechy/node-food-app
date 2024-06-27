@@ -14,10 +14,10 @@ const addAddress = async (req, res) => {
       receiverNumber,
     } = req.body;
 
-    const userId = req.userId;
+     const userId = req.userId;
 
     if(!userId){
-      return res.status(400).send({message:"user Id not found"})
+      return res.status(400).send({message:"User id not found."})
     }
 
     const addAddressSchema = yup.object({
@@ -53,6 +53,7 @@ const addAddress = async (req, res) => {
       return res.status(400).send({ message: "Something went wrong" });
     }
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .send({ message: error.message || "Internal Server Error" });
