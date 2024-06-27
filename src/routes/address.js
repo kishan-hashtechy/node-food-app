@@ -1,5 +1,6 @@
 const express = require("express");
 const auth = require("../middleware/auth");
+const router = express.Router();
 const {
   addAddress,
   getAllAddress,
@@ -7,7 +8,6 @@ const {
   updateAddress,
   deleteAddress,
 } = require("../controllers/addressController");
-const router = express.Router();
 
 router.post("/add-address", auth, addAddress);
 router.put("/update-address/:id", auth, updateAddress);

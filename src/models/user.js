@@ -38,6 +38,7 @@ const User = sequelizeInstance.define("User", {
   userProfile: {
     type: DataTypes.STRING,
     allowNull: true,
+    defaultValue: "/profile_img/1719403974239-profileIcon.svg",
   },
 
   gender: {
@@ -55,11 +56,15 @@ const User = sequelizeInstance.define("User", {
     type: DataTypes.ENUM("Active", "Inactive"),
     allowNull: true,
   },
+  
 });
 
+// Here pelase check proper relationships working or not... 
+// User.hasMany( Address , { foreignKey: 'userId' });
 User.hasMany(Address, {
   foreignKey: "userId",
   as: "addresses",
 });
+
 
 module.exports = User;

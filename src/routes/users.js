@@ -2,16 +2,16 @@ const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
 const router = express.Router();
-
 const auth = require("../middleware/auth");
+
 const {
   signUp,
   updateUser,
   getUser,
   deleteUser,
   signIn,
+  searchItems,
 } = require("../controllers/userController");
-const { date } = require("joi");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -29,10 +29,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post("/signup", signUp);
+router.post("/signup", upload.single("userProfile"),  signUp);
 router.post("/signin", signIn);
 router.put("/update-user/:id", upload.single("userProfile"), updateUser);
-router.get("/get-user/:id", auth, getUser);
+router.get("/get-user", auth, getUser);
 router.delete("/delete-user/:id", deleteUser);
+router.get("/search-items", searchItems)
 
 module.exports = router;

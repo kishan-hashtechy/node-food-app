@@ -6,6 +6,10 @@ const {
   hashPassword,
   comparePassword,
 } = require("../libs/helpers/passwordHasher");
+const Address = require("../models/address");
+const { Sequelize, Model } = require("sequelize");
+const { Op } = require("sequelize");
+const Food = require("../models/food");
 
 //@desc User SIGNUP
 //@route POST / api/user/signup
@@ -13,7 +17,7 @@ const {
 
 const signUp = async (req, res) => {
   try {
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password ,userProfile} = req.body;
 
     const userSignupSchema = yup.object({
       email: yup
@@ -22,25 +26,23 @@ const signUp = async (req, res) => {
         .required("Please enter your email"),
       fullName: yup.string().min(4).required("Please enter your full name"),
       password: yup.string().min(6).required("Please enter your password"),
-      // mobileNumber: yup.string().required("Please enter your mobile number"),
-      // gender: yup.string().required("Please enter your gender"),
+      userProfile: yup.string().optional(),
     });
 
     await userSignupSchema.validate({
       email,
       fullName,
       password,
-      // mobileNumber,
-      // gender,
+      userProfile
     });
+
     const hashedPassword = await hashPassword(password);
 
     const UserData = {
       fullName,
       email,
       password: hashedPassword,
-      // mobileNumber,
-      // gender,
+      userProfile,
       userStatus: "Active",
     };
 
@@ -58,6 +60,7 @@ const signUp = async (req, res) => {
       return res.status(400).send({ message: "Something went wrong" });
     }
   } catch (error) {
+    console.log(error)
     return res.status(500).send({ message: "Internal Server Error", error });
   }
 };
@@ -74,6 +77,10 @@ const signIn = async (req, res) => {
 
     const user = await User.findOne({ where: { email } });
 
+    if (!user) {
+      return res.status(404).send({ message: "No user found"});
+    }
+
     const isPasswordValid = await comparePassword(password, user?.password);
 
     if (user && isPasswordValid) {
@@ -87,9 +94,12 @@ const signIn = async (req, res) => {
 
       return res
         .status(200)
-        .send({ message: "Login Successfully", data: { accessToken, user } });
+        .send({
+          message: "Login Successfully",
+          data: { accessToken, user },
+        });
     } else {
-      return res.status(400).send({ message: "Invalid email or password." });
+      return res.send({ message: "Invalid email or password."});
     }
   } catch (error) {
     return res.status(500).send({ message: "Internal server error!!" });
@@ -101,6 +111,7 @@ const signIn = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const userId = req.params.id;
+
     const {
       fullName,
       email,
@@ -136,7 +147,7 @@ const updateUser = async (req, res) => {
 // GET
 const getUser = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req.userId;
 
     if (!userId) {
       return res.status(400).send({ message: "user id not found" });
@@ -146,6 +157,13 @@ const getUser = async (req, res) => {
       where: {
         id: userId,
       },
+      include: {
+        model: Address,
+        where: {
+          userId,
+        },
+      },
+      order: [[Address, "createdAt", "DESC"]],
     });
 
     if (record) {
@@ -156,6 +174,7 @@ const getUser = async (req, res) => {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).send({ message: "Internal Server Error" });
   }
 };
@@ -186,4 +205,36 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { signUp, updateUser, getUser, deleteUser, signIn };
+const searchItems = async (req, res) => {
+  try {
+
+    const search = req.query.search || "";
+
+    const response = await Food.findAndCountAll({
+      where: {
+        name: {
+          [Op.iLike]: `%${search}%`
+        },
+      },
+    });
+
+    if (response.rows.length >= 0) {
+      return res
+        .status(200)
+        .send({ message: "Search successful", data: response.rows, count:response.count});
+    } else {
+      return res.send({ message: "No data found"});
+    }
+  } catch (err) {
+    return res.status(500).send({ message: "Internal Server Error" });
+  }
+};
+
+module.exports = {
+  signUp,
+  updateUser,
+  getUser,
+  deleteUser,
+  signIn,
+  searchItems,
+};
