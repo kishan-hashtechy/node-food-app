@@ -1,5 +1,7 @@
 const Food = require("../models/food");
 const yup = require("yup");
+const { Op, where } = require("sequelize");
+const paginate = require("../libs/common/paginate");
 
 const addFood = async (req, res) => {
   try {
@@ -11,7 +13,7 @@ const addFood = async (req, res) => {
       price: yup.number().required("Price is required"),
       type: yup.string().required("Food type is required"),
       category: yup.string().required("Food category is required"),
-      //foodImage: yup.required("Food Image is required"),
+      foodImage: yup.string().required("Food Image is required"),
     });
 
     await foodSchema.validate(req.body);
@@ -23,35 +25,146 @@ const addFood = async (req, res) => {
       type,
       category,
       foodImage,
-      status:"Active",
+      status: "Active",
     };
 
     const response = await Food.create(foddData);
 
     if (response) {
-      return res.status(200).send({ message: "Food successfuly added" });
+      return res.status(200).send({ message: "Successfuly added" });
     } else {
-      return res.status(400).send({ message: "something occured"});
+      return res.status(400).send({ message: "something occured" });
     }
   } catch (err) {
-    console.log(err)
+    console.log(err);
     return res.status(500).send({ message: "Internal server error" });
   }
 };
 
 const getAllFood = async (req, res) => {
   try {
-    const response = await Food.findAll({});
-    if (response) {
+    const foodCatagory = req?.query?.category;
+
+    const page = req?.query?.page || 1;
+    const limit = req?.query?.limit || 5;
+
+    if (!foodCatagory) {
+      return res.status(400).send({ message: "catagory id not found" });
+    }
+
+    const response = await Food.findAndCountAll({
+      where: {
+        category: foodCatagory,
+        status: "Active",
+      },
+      limit,
+      offset: (page - 1) * limit,
+    });
+
+    const response2 = paginate(page, response?.count, limit, response?.rows);
+
+    if (response && response?.rows?.length >= 1) {
       return res
         .status(200)
-        .send({ message: "Sucessfuly get food", data: response});
+        .send({ message: "Sucessfuly get", data: response2 });
     } else {
-      return res.status(400).send({ message: "no food found"});
+      return res.status(400).send({ message: "no food found" });
     }
   } catch (err) {
     res.status(500).send({ message: "Internal server error" });
   }
 };
 
-module.exports = { addFood, getAllFood };
+const getSingleFood = async (req, res) => {
+  try {
+    const foodId = req.params.id;
+
+    if (!foodId) {
+      return res.status(400).send({ message: "food id not found" });
+    }
+
+    const response = await Food.findOne({
+      where: {
+        id: foodId,
+      },
+    });
+
+    if (response) {
+      return res
+        .status(200)
+        .send({ message: "Successfully get", data: response });
+    } else {
+      return res.status(400).send({ message: "No data found" });
+    }
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({ message: "Internal Server Error" });
+  }
+};
+
+const updateFood = async (req, res) => {
+  try {
+    const foodId = req?.params?.id;
+
+    const { ...foodData } = req.body;
+
+    const foodSchema = yup.object({
+      name: yup.string().optional(),
+      description: yup.string().optional(),
+      price: yup.number().optional(),
+      type: yup.string().optional(),
+      category: yup.string().optional(),
+      foodImage: yup.string().optional(),
+    });
+
+    await foodSchema.validate(foodData);
+
+    const findItems = await Food.findOne({
+      where: {
+        id: foodId,
+      },
+    });
+
+    if (findItems) {
+      const response = await Food.update(foodData, {
+        where: {
+          id: findItems?.id,
+        },
+      });
+
+      if (response) {
+        return res.status(200).send({ message: "Successfully Updated!!" });
+      } else {
+        return res.status(400).send({ message: "Error Processing query" });
+      }
+    } else {
+      return res.status(400).send({ message: "Items not found" });
+    }
+  } catch (err) {
+    return res.status(500).send({ message: "Internal Server Error" });
+  }
+};
+
+const deleteFood = async (req, res) => {
+  try {
+    const foodId = req?.parmas?.id;
+
+    if (!foodId) {
+      return res.status(400).send({ message: "Food Id not found" });
+    }
+
+    const response = await Food.destroy({
+      where: {
+        id: foodId,
+      },
+    });
+
+    if (response) {
+      return res.status(200).send({ message: "Successfully Deleted" });
+    }
+  } catch {
+    return res.status(500).message({ message: "Internal Server Error" });
+  }
+};
+
+module.exports = { addFood, getAllFood, getSingleFood, updateFood, deleteFood };

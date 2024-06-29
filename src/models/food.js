@@ -33,6 +33,7 @@ const Food = sequelizeInstance.define("Food", {
   category: {
     type: DataTypes.ENUM("Foods", "Drinks", "Snacks", "Sauce"),
     allowNull: false,
+    defaultValue: "Foods",
   },
 
   type: {
@@ -49,6 +50,7 @@ const Food = sequelizeInstance.define("Food", {
   status: {
     type: DataTypes.ENUM("Active", "Inactive"),
     allowNull: false,
+    defaultValue: "Active",
   },
 });
 
