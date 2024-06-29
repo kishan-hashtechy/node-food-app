@@ -1,8 +1,10 @@
 const Food = require("../models/food");
 const yup = require("yup");
+const paginate = require("../libs/common/paginate");
 
 const addFood = async (req, res) => {
   try {
+    console.log("addFood ==> ", req.body);
     const {
       name,
       description,
@@ -15,9 +17,9 @@ const addFood = async (req, res) => {
     } = req.body;
 
     const addFoodSchema = yup.object({
-      name: yup.object().string("Food name is required"),
+      name: yup.string().required("Food name is required"),
       description: yup.string().required("Description is required"),
-      price: yup.object().string("Price is required"),
+      price: yup.string().required("Price is required"),
       foodImage: yup.string().required("Food image is required"),
       type: yup.string().required("Type is required"),
       category: yup.string().required("Category is required"),
@@ -60,6 +62,8 @@ const updateFood = async (req, res) => {
   try {
     const foodId = req.params.id;
 
+    console.log(req.body);
+
     const {
       name,
       description,
@@ -71,6 +75,17 @@ const updateFood = async (req, res) => {
       status,
     } = req.body;
 
+    const updateFoodSchema = yup.object({
+      name: yup.string().required("Name is required"),
+      description: yup.string().required("Description is required"),
+      price: yup.string().required("Price is required"),
+      foodImage: yup.string().required("Food image is required"),
+      type: yup.string().required("Type is required"),
+      category: yup.string().required("Category is required"),
+      rating: yup.string().optional(),
+      status: yup.string().optional(),
+    });
+
     const data = req.body;
 
     const record = await Food.findOne({
@@ -78,7 +93,7 @@ const updateFood = async (req, res) => {
         id: foodId,
       },
     });
-
+    console.log("trst", record);
     if (record) {
       const response = await Food.update(data, { where: { id: foodId } });
 
@@ -89,37 +104,109 @@ const updateFood = async (req, res) => {
       return res.staus(404).send({ message: "No record found !!" });
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).send({ message: "Internal server error!!" });
   }
 };
 
-//GET FOOD
+//GET ALL FOOD
 
 const getAllFood = async (req, res) => {
   try {
-    const foodId = req.foodId;
-    if (!foodId) {
+    const foodCategory = req?.query?.category;
+    const limit = parseInt(req.query.limit) || 5;
+    const page = parseInt(req.query.page) || 1;
+    const status = req?.query?.status;
+
+    console.log(foodCategory);
+
+    if (!foodCategory) {
       return res.status(400).send({ message: "User id not found" });
     }
 
-    const record = await Food.findAll({
+    const getItems = await Food.findAndCountAll({
       where: {
-        foodId,
+        category: foodCategory,
+        status,
       },
+      limit,
+      offset: (page - 1) * limit,
+      // order: [["id", "ASC"]],
     });
 
-    if (record.length) {
-      return res
-        .status(200)
-        .send({ message: "Get food successfully", data: record });
+    const response2 = paginate(page, getItems.count, limit, getItems.rows);
+
+    if (getItems && getItems.rows.length >= 1) {
+      return res.status(200).send({
+        message: "Get food successfully",
+        data: response2,
+      });
     } else {
       return res.status(404).send({ message: "No data found" });
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).send({ message: "Internal server error!!" });
+  }
+};
+
+//GET SINGLE FOOD
+
+const getSingleFood = async (req, res) => {
+  try {
+    const foodId = req.params.id;
+
+    if (!foodId) {
+      return res.status(400).send({ message: "Successfull get", data: record });
+    }
+
+    const record = await Food.findOne({
+      where: {
+        id: foodId,
+      },
+    });
+
+    if (record) {
+      return res.status(200).send({ message: "Successful get", data: record });
+    } else {
+      return res.status(404).send({ message: "No data found" });
+    }
+  } catch (error) {
+    return res.status(500).send({ message: "Internal server error!!!" });
+  }
+};
+
+//DELETE FOOD ITEM
+
+const deleteFood = async (req, res) => {
+  try {
+    const foodId = req.params.id;
+
+    //validation
+
+    if (!foodId) {
+      return res.status(400).send({ message: "Food id is not found" });
+    }
+    const response = await Food.destroy({
+      where: {
+        id: foodId,
+      },
+    });
+
+    if (response) {
+      return res.status(200).send({ message: "Food deleted" });
+    } else {
+      return res.status(404).send({ message: "Something went wrong" });
+    }
+  } catch (error) {
+    return res.status(500).send({ message: "Internal server error!!!" });
   }
 };
 
 module.exports = {
   addFood,
+  updateFood,
+  getAllFood,
+  getSingleFood,
+  deleteFood,
 };
