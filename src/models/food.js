@@ -49,6 +49,7 @@ const Food = sequelizeInstance.define("Food", {
   status: {
     type: DataTypes.ENUM("Active", "Inactive"),
     allowNull: false,
+    defaultValue: "Active",
   },
 });
 

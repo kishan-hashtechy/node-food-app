@@ -19,10 +19,10 @@ const addFood = async (req, res) => {
       description: yup.string().required("Description is required"),
       price: yup.object().string("Price is required"),
       foodImage: yup.string().required("Food image is required"),
-      type: yup.string.required("Type is required"),
-      category: yup.string.required("Category is required"),
-      ratings: yup.string.required("Ratings is required"),
-      status: yup.string.required("Status is required"),
+      type: yup.string().required("Type is required"),
+      category: yup.string().required("Category is required"),
+      ratings: yup.string().optional(),
+      status: yup.string().optional(),
     });
 
     await addFoodSchema.validate(req.body);
