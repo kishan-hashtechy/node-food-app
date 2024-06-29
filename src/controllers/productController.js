@@ -123,7 +123,7 @@ const getAllFood = async (req, res) => {
     if (!foodCategory) {
       return res.status(400).send({ message: "User id not found" });
     }
-
+    console.log(foodCategory);
     const getItems = await Food.findAndCountAll({
       where: {
         category: foodCategory,
