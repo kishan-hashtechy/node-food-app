@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const fs = require("fs");
-// const { addFood, getAllFood } = require("../controllers/adminConstroller");
+const { addFood, getAllFood, getSingleFood, updateFood, deleteFood } = require("../controllers/adminConstroller");
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -18,7 +19,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// router.post("/add-food", upload.single("foodImage"), addFood);
-// router.get("/get-all-food", getAllFood);
+router.post("/add-food", upload.single("foodImage"), addFood);
+router.get("/get-all-food", getAllFood);
+router.get("/get-single-food/:id", getSingleFood);
+router.patch("/update-food/:id", upload.single("foodImage") ,updateFood);
+router.delete("/delete-food/:id", deleteFood);
 
 module.exports = router;

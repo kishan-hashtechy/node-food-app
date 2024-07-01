@@ -39,13 +39,16 @@ const signUp = async (req, res) => {
 
     const hashedPassword = await hashPassword(password);
 
-    const UserData = {
+    const userData = {
       fullName,
       email,
       password: hashedPassword,
-      userProfile,
       userStatus: "Active",
     };
+
+    if(userProfile){
+      userData.userProfile = userProfile;
+    }
 
     const isAlreadyExits = await User.findOne({ where: { email } });
 
@@ -53,7 +56,7 @@ const signUp = async (req, res) => {
       return res.status(400).send({ message: "Email already exists" });
     }
 
-    const response = await User.create(UserData);
+    const response = await User.create(userData);
 
     if (response) {
       return res.status(200).send({ message: "Signup successfully", response });

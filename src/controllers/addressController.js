@@ -110,16 +110,16 @@ const getAllAddress = async (req, res) => {
       return res.status(400).send({ message: "user id not found" });
     }
 
-    const record = await Address.findAll({
+    const record = await Address.findAndCountAll({
       where: {
         userId,
       },
     });
 
-    if (record.length) {
+    if (record?.rows?.length >= 1) {
       return res
         .status(200)
-        .send({ message: "Successfully GET", data: record });
+        .send({ message: "Successfully GET", data: record?.rows, dataCount: record?.count });
     } else {
       return res.status(404).send({ message: "No data found" });
     }

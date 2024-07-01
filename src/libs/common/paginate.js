@@ -1,5 +1,6 @@
 const handlePaginate = (page, count, limit, data) => {
-  const totalPages = Math.ceil(count / limit);
+  const totalPage = Math.ceil(count / limit);
+
   return {
     totalPages,
     itemsPerPage: limit,
@@ -7,4 +8,5 @@ const handlePaginate = (page, count, limit, data) => {
     data,
   };
 };
+
 module.exports = handlePaginate;
