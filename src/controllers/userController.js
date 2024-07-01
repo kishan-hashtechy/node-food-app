@@ -7,6 +7,7 @@ const {
   comparePassword,
 } = require("../libs/helpers/passwordHasher");
 const Address = require("../models/address");
+const paginate = require("../libs/common/paginate");
 const { Sequelize, Model } = require("sequelize");
 const { Op } = require("sequelize");
 const Food = require("../models/food");
@@ -17,7 +18,7 @@ const Food = require("../models/food");
 
 const signUp = async (req, res) => {
   try {
-    const { fullName, email, password ,userProfile} = req.body;
+    const { fullName, email, password, userProfile } = req.body;
 
     const userSignupSchema = yup.object({
       email: yup
@@ -33,7 +34,7 @@ const signUp = async (req, res) => {
       email,
       fullName,
       password,
-      userProfile
+      userProfile,
     });
 
     const hashedPassword = await hashPassword(password);
@@ -63,7 +64,7 @@ const signUp = async (req, res) => {
       return res.status(400).send({ message: "Something went wrong" });
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(500).send({ message: "Internal Server Error", error });
   }
 };
@@ -81,7 +82,7 @@ const signIn = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(404).send({ message: "No user found"});
+      return res.status(404).send({ message: "No user found" });
     }
 
     const isPasswordValid = await comparePassword(password, user?.password);
@@ -95,14 +96,12 @@ const signIn = async (req, res) => {
         { expiresIn: 24 * 60 * 60 }
       );
 
-      return res
-        .status(200)
-        .send({
-          message: "Login Successfully",
-          data: { accessToken, user },
-        });
+      return res.status(200).send({
+        message: "Login Successfully",
+        data: { accessToken, user },
+      });
     } else {
-      return res.send({ message: "Invalid email or password."});
+      return res.send({ message: "Invalid email or password." });
     }
   } catch (error) {
     return res.status(500).send({ message: "Internal server error!!" });
@@ -210,25 +209,32 @@ const deleteUser = async (req, res) => {
 
 const searchItems = async (req, res) => {
   try {
-
     const search = req.query.search || "";
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
 
     const response = await Food.findAndCountAll({
       where: {
         name: {
-          [Op.iLike]: `%${search}%`
+          [Op.iLike]: `%${search}%`,
         },
       },
+      limit,
+      offset: (page - 1) * limit,
     });
 
+    const response2 = paginate(page, response?.count, limit, response?.rows);
+
     if (response.rows.length >= 0) {
-      return res
-        .status(200)
-        .send({ message: "Search successful", data: response.rows, count:response.count});
+      return res.status(200).send({
+        message: "Search successful",
+        data: response2.data,
+        count: response2.data.length,
+      });
     } else {
-      return res.send({ message: "No data found"});
+      return res.send({ message: "No data found" });
     }
-  } catch (err) {
+  } catch (error) {
     return res.status(500).send({ message: "Internal Server Error" });
   }
 };

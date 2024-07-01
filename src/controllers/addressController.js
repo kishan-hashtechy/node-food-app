@@ -14,10 +14,10 @@ const addAddress = async (req, res) => {
       receiverNumber,
     } = req.body;
 
-     const userId = req.userId;
+    const userId = req.userId;
 
-    if(!userId){
-      return res.status(400).send({message:"User id not found."})
+    if (!userId) {
+      return res.status(400).send({ message: "User id not found." });
     }
 
     const addAddressSchema = yup.object({
@@ -63,11 +63,10 @@ const addAddress = async (req, res) => {
 //UPDATE
 const updateAddress = async (req, res) => {
   try {
-
     const addressId = req.params.id;
 
-    if(!addressId){
-      return res.status(400).send({ message: "address Id not found" })
+    if (!addressId) {
+      return res.status(400).send({ message: "address Id not found" });
     }
 
     const {
@@ -106,6 +105,7 @@ const updateAddress = async (req, res) => {
 const getAllAddress = async (req, res) => {
   try {
     const userId = req.userId;
+
     if (!userId) {
       return res.status(400).send({ message: "user id not found" });
     }
@@ -147,12 +147,10 @@ const getSingleAddress = async (req, res) => {
     if (record) {
       return res.status(200).send({ message: "Successfull get", data: record });
     } else {
-      return res.status(404).send({ message: "No data found"});
+      return res.status(404).send({ message: "No data found" });
     }
   } catch (error) {
-    return res
-      .status(500)
-      .send({ message: "Internal server error!!!"});
+    return res.status(500).send({ message: "Internal server error!!!" });
   }
 };
 

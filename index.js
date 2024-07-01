@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-var bodyParser = require('body-parser')
+var bodyParser = require("body-parser");
 const sequelizeInstance = require("./src/libs/common/connect");
 
 if (process.env.NODE_EVN != "production") {
@@ -10,7 +10,8 @@ if (process.env.NODE_EVN != "production") {
 const app = express();
 
 app.use(express.json());
-app.use(express.static('public'))
+app.use(express.static("public"));
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors());
@@ -18,6 +19,7 @@ app.use(cors());
 app.use("/api/users", require("./src/routes/users"));
 app.use("/api/address", require("./src/routes/address"));
 app.use("/admin", require("./src/routes/admin"));
+app.use("/product", require("./src/routes/product"));
 
 try {
   sequelizeInstance.authenticate();
