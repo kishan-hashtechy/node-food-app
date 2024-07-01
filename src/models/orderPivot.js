@@ -12,11 +12,13 @@ const orderPivot = sequelizeInstance.define("Order_pivot", {
   order_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    notEmpty: true,
   },
 
   user_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    notEmpty: true,
   },
 
   food_id: {
