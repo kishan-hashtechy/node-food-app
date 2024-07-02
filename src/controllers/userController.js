@@ -61,7 +61,9 @@ const signUp = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Signup successfully", response });
     } else {
-      return res.status(400).send({ message: "Something went wrong" });
+      const error = new error();
+      error.status = 400
+      error.message = "Something went wrong"
     }
   } catch (error) {
     console.log(error);
@@ -101,7 +103,9 @@ const signIn = async (req, res) => {
         data: { accessToken, user },
       });
     } else {
-      return res.send({ message: "Invalid email or password." });
+      const error = new error()
+      error.status = 401
+      error.message = "Invalid emial or password"
     }
   } catch (error) {
     return res.status(500).send({ message: "Internal server error!!" });
@@ -139,7 +143,9 @@ const updateUser = async (req, res) => {
         return res.status(200).send({ message: "User Update !!", response });
       }
     } else {
-      return res.status(404).send({ message: "Something went wrong !!!" });
+      const error = new error();
+      error.status = 404
+      error.message = "No user found"
     }
   } catch (error) {
     return res.status(500).send({ message: "Internal Server Error" });
@@ -173,7 +179,10 @@ const getUser = async (req, res) => {
         .status(200)
         .send({ message: "Successfully GET", data: record });
     } else {
-      return res.status(404).send({ message: "Something went wrong !!!" });
+      //return res.status(404).send({ message: "Something went wrong !!!" });
+      const error = new error();
+      error.message = {};
+      error.status = "Something went wrong";
     }
   } catch (error) {
     console.log(error);
@@ -186,9 +195,8 @@ const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    //validation
     if (!userId) {
-      return res.status(400).send({ message: "user Id not found" });
+      return res.status(404).send({ message: "user Id not found" });
     }
 
     const response = await User.destroy({
@@ -200,7 +208,11 @@ const deleteUser = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "User deleted !!" });
     } else {
-      return res.status(404).send({ message: "Something went wrong !!!" });
+      // return res.status(404).send({ message: "Something went wrong !!!" });
+      const error = new error();
+      error.status = 401;
+      error.message = "Something went wrong";
+      throw error;
     }
   } catch (error) {
     return res.status(500).send({ message: "Internal server error" });
@@ -225,14 +237,16 @@ const searchItems = async (req, res) => {
 
     const response2 = paginate(page, response?.count, limit, response?.rows);
 
-    if (response.rows.length >= 0) {
+    if (response.rows.length) {
       return res.status(200).send({
         message: "Search successful",
         data: response2.data,
         count: response2.data.length,
       });
     } else {
-      return res.send({ message: "No data found" });
+      const error = new error();
+      error.status = 404;
+      error.message = "No data found"
     }
   } catch (error) {
     return res.status(500).send({ message: "Internal Server Error" });

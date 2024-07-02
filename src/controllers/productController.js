@@ -93,7 +93,7 @@ const updateFood = async (req, res) => {
         id: foodId,
       },
     });
-    console.log("trst", record);
+
     if (record) {
       const response = await Food.update(data, { where: { id: foodId } });
 
@@ -117,8 +117,6 @@ const getAllFood = async (req, res) => {
     const limit = parseInt(req.query.limit) || 5;
     const page = parseInt(req.query.page) || 1;
     const status = req?.query?.status;
-
-    console.log(foodCategory);
 
     if (!foodCategory) {
       return res.status(400).send({ message: "User id not found" });

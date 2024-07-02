@@ -56,10 +56,11 @@ const User = sequelizeInstance.define("User", {
     type: DataTypes.ENUM("Active", "Inactive"),
     allowNull: true,
   },
-  
+},{
+  paranoid: true,
+  deletedAt: 'deletedAt',
 });
 
-// Here pelase check proper relationships working or not... 
  User.hasMany( Address , { foreignKey: 'userId' });
 
 // User.hasMany(Address, {

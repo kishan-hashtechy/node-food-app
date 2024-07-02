@@ -116,12 +116,14 @@ const getAllAddress = async (req, res) => {
       },
     });
 
-    if (record?.rows?.length >= 1) {
+    if (record?.rows?.length) {
       return res
         .status(200)
         .send({ message: "Successfully GET", data: record?.rows, dataCount: record?.count });
     } else {
-      return res.status(404).send({ message: "No data found" });
+      const error = new error();
+      error.status = 404;
+      error.message = "No data found"
     }
   } catch (error) {
     return res.status(500).send({ message: "Internal Server Error" });
@@ -147,7 +149,9 @@ const getSingleAddress = async (req, res) => {
     if (record) {
       return res.status(200).send({ message: "Successfull get", data: record });
     } else {
-      return res.status(404).send({ message: "No data found" });
+      const error = new error();
+      error.status = 404;
+      error.message = "No data found"
     }
   } catch (error) {
     return res.status(500).send({ message: "Internal server error!!!" });
@@ -174,7 +178,9 @@ const deleteAddress = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Address deleted !!" });
     } else {
-      return res.status(404).send({ message: "Something went wrong !!!" });
+      const error = new error();
+      error.status = 404;
+      error.message = "Something went wrong"
     }
   } catch (error) {
     return res.status(500).send({ message: "Internal server error" });

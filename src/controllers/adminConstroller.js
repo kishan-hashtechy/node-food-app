@@ -33,7 +33,9 @@ const addFood = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Successfuly added" });
     } else {
-      return res.status(400).send({ message: "something occured" });
+      const error = new error();
+      error.status = 400;
+      error.message = "Smoething occured"
     }
   } catch (err) {
     console.log(err);
@@ -44,7 +46,7 @@ const addFood = async (req, res) => {
 const getAllFood = async (req, res) => {
   try {
     const foodCatagory = req?.query?.category;
-
+    const search = req?.query?.search || "";
     const page = req?.query?.page || 1;
     const limit = req?.query?.limit || 5;
 
@@ -52,11 +54,25 @@ const getAllFood = async (req, res) => {
       return res.status(400).send({ message: "catagory id not found" });
     }
 
-    const response = await Food.findAndCountAll({
-      where: {
+    let query = {};
+
+    if (!search) {
+      query = {
         category: foodCatagory,
         status: "Active",
-      },
+      };
+    } else {
+      query = {
+        name: {
+          [Op.iLike]: `%${search}%`,
+        },
+        category: foodCatagory,
+        status: "Active",
+      };
+    }
+
+    const response = await Food.findAndCountAll({
+      where: query,
       limit,
       offset: (page - 1) * limit,
     });
@@ -68,9 +84,12 @@ const getAllFood = async (req, res) => {
         .status(200)
         .send({ message: "Sucessfuly get", data: response2 });
     } else {
-      return res.status(400).send({ message: "no food found" });
+      const error = new error();
+      error.status = 400;
+      error.message = "No data found"
     }
   } catch (err) {
+    console.log(err);
     res.status(500).send({ message: "Internal server error" });
   }
 };
@@ -94,7 +113,9 @@ const getSingleFood = async (req, res) => {
         .status(200)
         .send({ message: "Successfully get", data: response });
     } else {
-      return res.status(400).send({ message: "No data found" });
+      const error = new error()
+      error.status = 400;
+      error.message = "No data found"
     }
   } catch (err) {
     console.log(err);
@@ -135,10 +156,14 @@ const updateFood = async (req, res) => {
       if (response) {
         return res.status(200).send({ message: "Successfully Updated!!" });
       } else {
-        return res.status(400).send({ message: "Error Processing query" });
+        const error = new error();
+        error.status = 404;
+        error.message = "Error in processing query"
       }
     } else {
-      return res.status(400).send({ message: "Items not found" });
+      const error = new error();
+      error.status = 404;
+      error.message = "Items not found"
     }
   } catch (err) {
     return res.status(500).send({ message: "Internal Server Error" });
@@ -161,6 +186,10 @@ const deleteFood = async (req, res) => {
 
     if (response) {
       return res.status(200).send({ message: "Successfully Deleted" });
+    }else{
+      const error = new error()
+      error.status = 401; 
+      error.message = "Something went wrong"
     }
   } catch {
     return res.status(500).message({ message: "Internal Server Error" });
