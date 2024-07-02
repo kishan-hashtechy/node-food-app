@@ -18,7 +18,7 @@ app.use(cors());
 
 app.use("/api/users", require("./src/routes/users"));
 app.use("/api/address", require("./src/routes/address"));
-app.use("/admin", require("./src/routes/admin"));
+// app.use("/admin", require("./src/routes/admin"));
 app.use("/product", require("./src/routes/product"));
 
 try {

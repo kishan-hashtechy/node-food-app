@@ -1,6 +1,8 @@
 const Food = require("../models/food");
 const yup = require("yup");
 const paginate = require("../libs/common/paginate");
+const { search } = require("../routes/product");
+const { Op } = require("sequelize");
 
 const addFood = async (req, res) => {
   try {
@@ -117,18 +119,35 @@ const getAllFood = async (req, res) => {
     const limit = parseInt(req.query.limit) || 5;
     const page = parseInt(req.query.page) || 1;
     const status = req?.query?.status;
-
-    console.log(foodCategory);
+    const search = req.query.search || "";
 
     if (!foodCategory) {
       return res.status(400).send({ message: "User id not found" });
     }
-    console.log(foodCategory);
-    const getItems = await Food.findAndCountAll({
-      where: {
+
+    if (!search) {
+      query = {
         category: foodCategory,
-        status,
-      },
+        status: "Active",
+      };
+    } else {
+      query = {
+        name: {
+          [Op.iLike]: `%${search}%`,
+        },
+        [Op.and]: [
+          {
+            category: foodCategory,
+          },
+          {
+            status: "Active",
+          },
+        ],
+      };
+    }
+
+    const getItems = await Food.findAndCountAll({
+      where: query,
       limit,
       offset: (page - 1) * limit,
       // order: [["id", "ASC"]],
@@ -155,7 +174,6 @@ const getAllFood = async (req, res) => {
 const getSingleFood = async (req, res) => {
   try {
     const foodId = req.params.id;
-
     if (!foodId) {
       return res.status(400).send({ message: "Successfull get", data: record });
     }
