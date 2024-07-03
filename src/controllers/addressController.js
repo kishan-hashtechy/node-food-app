@@ -52,11 +52,10 @@ const addAddress = async (req, res) => {
     } else {
       return res.status(400).send({ message: "Something went wrong" });
     }
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
     return res
       .status(500)
-      .send({ message: error.message || "Internal Server Error" });
+      .send({ message: err.message });
   }
 };
 
@@ -97,7 +96,7 @@ const updateAddress = async (req, res) => {
       return res.status(404).send({ message: "No record found" });
     }
   } catch (error) {
-    return res.status(500).send({ message: "Internal Server Error" });
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -121,12 +120,10 @@ const getAllAddress = async (req, res) => {
         .status(200)
         .send({ message: "Successfully GET", data: record?.rows, dataCount: record?.count });
     } else {
-      const error = new error();
-      error.status = 404;
-      error.message = "No data found"
+      return res.status(404).send({ message: "No data found" });
     }
-  } catch (error) {
-    return res.status(500).send({ message: "Internal Server Error" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -149,12 +146,10 @@ const getSingleAddress = async (req, res) => {
     if (record) {
       return res.status(200).send({ message: "Successfull get", data: record });
     } else {
-      const error = new error();
-      error.status = 404;
-      error.message = "No data found"
+      return res.status(404).send({ message: "No data found" });
     }
-  } catch (error) {
-    return res.status(500).send({ message: "Internal server error!!!" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -178,12 +173,10 @@ const deleteAddress = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Address deleted !!" });
     } else {
-      const error = new error();
-      error.status = 404;
-      error.message = "Something went wrong"
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
-  } catch (error) {
-    return res.status(500).send({ message: "Internal server error" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
 

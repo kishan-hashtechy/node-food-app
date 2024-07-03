@@ -61,13 +61,10 @@ const signUp = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Signup successfully", response });
     } else {
-      const error = new error();
-      error.status = 400
-      error.message = "Something went wrong"
+      return res.status(400).send({ message: "Something went wrong" });
     }
   } catch (error) {
-    console.log(error);
-    return res.status(500).send({ message: "Internal Server Error", error });
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -103,12 +100,10 @@ const signIn = async (req, res) => {
         data: { accessToken, user },
       });
     } else {
-      const error = new error()
-      error.status = 401
-      error.message = "Invalid emial or password"
+      return res.send({ message: "Invalid email or password." });
     }
-  } catch (error) {
-    return res.status(500).send({ message: "Internal server error!!" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -143,12 +138,10 @@ const updateUser = async (req, res) => {
         return res.status(200).send({ message: "User Update !!", response });
       }
     } else {
-      const error = new error();
-      error.status = 404
-      error.message = "No user found"
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
-  } catch (error) {
-    return res.status(500).send({ message: "Internal Server Error" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -179,14 +172,10 @@ const getUser = async (req, res) => {
         .status(200)
         .send({ message: "Successfully GET", data: record });
     } else {
-      //return res.status(404).send({ message: "Something went wrong !!!" });
-      const error = new error();
-      error.message = {};
-      error.status = "Something went wrong";
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send({ message: "Internal Server Error" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -208,14 +197,10 @@ const deleteUser = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "User deleted !!" });
     } else {
-      // return res.status(404).send({ message: "Something went wrong !!!" });
-      const error = new error();
-      error.status = 401;
-      error.message = "Something went wrong";
-      throw error;
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
-  } catch (error) {
-    return res.status(500).send({ message: "Internal server error" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
 
@@ -244,12 +229,10 @@ const searchItems = async (req, res) => {
         count: response2.data.length,
       });
     } else {
-      const error = new error();
-      error.status = 404;
-      error.message = "No data found"
+      return res.status(404).send({ message: "No data found"});
     }
-  } catch (error) {
-    return res.status(500).send({ message: "Internal Server Error" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
 
