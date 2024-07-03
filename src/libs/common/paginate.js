@@ -2,7 +2,7 @@ const handlePaginate = (page, count, limit, data) => {
   const totalPage = Math.ceil(count / limit);
 
   return {
-    totalPages,
+    totalPage,
     itemsPerPage: limit,
     currentPage: Number(page),
     data,
