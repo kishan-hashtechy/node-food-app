@@ -225,7 +225,7 @@ const searchItems = async (req, res) => {
 
     const response2 = paginate(page, response?.count, limit, response?.rows);
 
-    if (response.rows.length) {
+    if (response?.rows?.length) {
       return res.status(200).send({
         message: "Search successful",
         data: response2.data,

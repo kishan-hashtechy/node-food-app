@@ -97,7 +97,7 @@ const updateFood = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ message: "Internal server error!!" });
+    return res.status(500).send({ message: error.message || "Internal server error!!" });
   }
 };
 
@@ -113,7 +113,7 @@ const getAllFood = async (req, res) => {
     if (!foodCategory) {
       return res.status(400).send({ message: "User id not found" });
     }
-    console.log(foodCategory);
+
     const getItems = await Food.findAndCountAll({
       where: {
         category: foodCategory,
@@ -125,7 +125,7 @@ const getAllFood = async (req, res) => {
 
     const response2 = paginate(page, getItems.count, limit, getItems.rows);
 
-    if (getItems && getItems.rows.length >= 1) {
+    if (getItems && getItems?.rows?.length) {
       return res.status(200).send({
         message: "Get food successfully",
         data: response2,
@@ -135,7 +135,7 @@ const getAllFood = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ message: "Internal server error!!" });
+    return res.status(500).send({ message: error.message || "Internal server error!!" });
   }
 };
 
@@ -161,7 +161,7 @@ const getSingleFood = async (req, res) => {
       return res.status(404).send({ message: "No data found" });
     }
   } catch (error) {
-    return res.status(500).send({ message: "Internal server error!!!" });
+    return res.status(500).send({ message: error.message || "Internal server error!!!" });
   }
 };
 
@@ -188,7 +188,7 @@ const deleteFood = async (req, res) => {
       return res.status(404).send({ message: "Something went wrong" });
     }
   } catch (error) {
-    return res.status(500).send({ message: "Internal server error!!!" });
+    return res.status(500).send({ message: error.message || "Internal server error!!!" });
   }
 };
 
