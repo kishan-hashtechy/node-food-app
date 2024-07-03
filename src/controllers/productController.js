@@ -4,7 +4,6 @@ const paginate = require("../libs/common/paginate");
 
 const addFood = async (req, res) => {
   try {
-    console.log("addFood ==> ", req.body);
     const {
       name,
       description,
@@ -64,27 +63,20 @@ const updateFood = async (req, res) => {
 
     console.log(req.body);
 
-    const {
-      name,
-      description,
-      price,
-      foodImage,
-      type,
-      category,
-      rating,
-      status,
-    } = req.body;
+    const { ...foodData } = req.body;
 
     const updateFoodSchema = yup.object({
-      name: yup.string().required("Name is required"),
-      description: yup.string().required("Description is required"),
-      price: yup.string().required("Price is required"),
-      foodImage: yup.string().required("Food image is required"),
-      type: yup.string().required("Type is required"),
-      category: yup.string().required("Category is required"),
+      name: yup.string().optional(),
+      description: yup.string().optional(),
+      price: yup.string().optional(),
+      foodImage: yup.string().optional(),
+      type: yup.string().optional(),
+      category: yup.string().optional(),
       rating: yup.string().optional(),
       status: yup.string().optional(),
     });
+
+    await updateFoodSchema.validate(foodData)
 
     const data = req.body;
 
@@ -129,7 +121,6 @@ const getAllFood = async (req, res) => {
       },
       limit,
       offset: (page - 1) * limit,
-      // order: [["id", "ASC"]],
     });
 
     const response2 = paginate(page, getItems.count, limit, getItems.rows);
@@ -152,7 +143,7 @@ const getAllFood = async (req, res) => {
 
 const getSingleFood = async (req, res) => {
   try {
-    const foodId = req.params.id;
+    const foodId = req?.params?.id;
 
     if (!foodId) {
       return res.status(400).send({ message: "Successfull get", data: record });
@@ -178,13 +169,13 @@ const getSingleFood = async (req, res) => {
 
 const deleteFood = async (req, res) => {
   try {
-    const foodId = req.params.id;
+    const foodId = req?.params?.id;
 
     //validation
-
     if (!foodId) {
       return res.status(400).send({ message: "Food id is not found" });
     }
+
     const response = await Food.destroy({
       where: {
         id: foodId,

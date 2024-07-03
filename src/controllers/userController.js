@@ -174,8 +174,11 @@ const getUser = async (req, res) => {
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
-  } catch (err) {
-    return res.status(500).send({ message: err.message });
+  }catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .send({ message: error.message || "Internal Server Error" });
   }
 };
 
@@ -200,7 +203,7 @@ const deleteUser = async (req, res) => {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).send({ message: err.message || "Internal Server Error" });
   }
 };
 
@@ -232,7 +235,7 @@ const searchItems = async (req, res) => {
       return res.status(404).send({ message: "No data found"});
     }
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).send({ message: err.message || "Internal Server Error" });
   }
 };
 
