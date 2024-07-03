@@ -52,11 +52,10 @@ const addAddress = async (req, res) => {
     } else {
       return res.status(400).send({ message: "Something went wrong" });
     }
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
     return res
       .status(500)
-      .send({ message: error.message || "Internal Server Error" });
+      .send({ message: err.message });
   }
 };
 
@@ -126,6 +125,7 @@ const getAllAddress = async (req, res) => {
         data: record?.rows,
         dataCount: record?.count,
       });
+
     } else {
       return res
         .status(404)
@@ -165,6 +165,7 @@ const getSingleAddress = async (req, res) => {
     return res
       .status(500)
       .send({ message: error.message || "Internal server error!!!" });
+
   }
 };
 

@@ -54,6 +54,10 @@ const Address = sequelizeInstance.define("Address", {
       key: "id",
     },
   },
+},
+{
+  paranoid: true,
+  deletedAt: 'deletedAt'
 });
 // Please add relationship here
 //User.hasMany(Address, { foreignKey: "id" });

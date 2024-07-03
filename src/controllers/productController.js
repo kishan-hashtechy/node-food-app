@@ -97,7 +97,7 @@ const updateFood = async (req, res) => {
         id: foodId,
       },
     });
-    console.log("trst", record);
+
     if (record) {
       const response = await Food.update(data, { where: { id: foodId } });
 
