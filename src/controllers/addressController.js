@@ -65,7 +65,7 @@ const updateAddress = async (req, res) => {
     const addressId = req.params.id;
 
     if (!addressId) {
-      return res.status(400).send({ message: "address Id not found" });
+      return res.status(400).send({ message: "address id not found" });
     }
 
     const {
@@ -93,10 +93,14 @@ const updateAddress = async (req, res) => {
         return res.status(200).send({ message: "Address Update !!", response });
       }
     } else {
-      return res.status(404).send({ message: "No record found" });
+      return res
+        .status(404)
+        .send({ message: error.message || "No record found" });
     }
   } catch (error) {
-    return res.status(500).send({ message: err.message });
+    return res
+      .status(500)
+      .send({ message: error.message || "Internal Server Error" });
   }
 };
 
@@ -115,15 +119,22 @@ const getAllAddress = async (req, res) => {
       },
     });
 
-    if (record?.rows?.length) {
-      return res
-        .status(200)
-        .send({ message: "Successfully GET", data: record?.rows, dataCount: record?.count });
+    if (record?.rows?.length >= 1) {
+      return res.status(200).send({
+        message: "Successfully GET",
+        data: record?.rows,
+        dataCount: record?.count,
+      });
+
     } else {
-      return res.status(404).send({ message: "No data found" });
+      return res
+        .status(404)
+        .send({ message: error.message || "No data found" });
     }
-  } catch (err) {
-    return res.status(500).send({ message: err.message });
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: error.message || "Internal Server Error" });
   }
 };
 
@@ -146,10 +157,15 @@ const getSingleAddress = async (req, res) => {
     if (record) {
       return res.status(200).send({ message: "Successfull get", data: record });
     } else {
-      return res.status(404).send({ message: "No data found" });
+      return res
+        .status(404)
+        .send({ message: error.message || "No data found" });
     }
-  } catch (err) {
-    return res.status(500).send({ message: err.message });
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: error.message || "Internal server error!!!" });
+
   }
 };
 
@@ -173,10 +189,14 @@ const deleteAddress = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Address deleted !!" });
     } else {
-      return res.status(404).send({ message: "Something went wrong !!!" });
+      return res
+        .status(404)
+        .send({ message: error.message || "Something went wrong !!" });
     }
-  } catch (err) {
-    return res.status(500).send({ message: err.message });
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: error.message || "Internal server error" });
   }
 };
 

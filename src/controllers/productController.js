@@ -1,6 +1,8 @@
 const Food = require("../models/food");
 const yup = require("yup");
 const paginate = require("../libs/common/paginate");
+const { search } = require("../routes/product");
+const { Op } = require("sequelize");
 
 const addFood = async (req, res) => {
   try {
@@ -47,7 +49,9 @@ const addFood = async (req, res) => {
         .status(200)
         .send({ message: "Food add successfully", response });
     } else {
-      return res.status(400).send({ message: "Something went wrong" });
+      return res
+        .status(400)
+        .send({ message: error.message || "Something went wrong" });
     }
   } catch (error) {
     return res
@@ -101,11 +105,15 @@ const updateFood = async (req, res) => {
         return res.status(200).send({ message: "Food update", response });
       }
     } else {
-      return res.staus(404).send({ message: "No record found !!" });
+      return res
+        .staus(404)
+        .send({ message: error.message || "No record found !!" });
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ message: "Internal server error!!" });
+    return res
+      .status(500)
+      .send({ message: error.message || "Internal server error!!" });
   }
 };
 
@@ -117,16 +125,37 @@ const getAllFood = async (req, res) => {
     const limit = parseInt(req.query.limit) || 5;
     const page = parseInt(req.query.page) || 1;
     const status = req?.query?.status;
+    const search = req.query.search || "";
 
     if (!foodCategory) {
-      return res.status(400).send({ message: "User id not found" });
+      return res
+        .status(404)
+        .send({ message: error.message || "User id not found" });
     }
-    console.log(foodCategory);
-    const getItems = await Food.findAndCountAll({
-      where: {
+
+    if (!search) {
+      query = {
         category: foodCategory,
-        status,
-      },
+        status: "Active",
+      };
+    } else {
+      query = {
+        name: {
+          [Op.iLike]: `%${search}%`,
+        },
+        [Op.and]: [
+          {
+            category: foodCategory,
+          },
+          {
+            status: "Active",
+          },
+        ],
+      };
+    }
+
+    const getItems = await Food.findAndCountAll({
+      where: query,
       limit,
       offset: (page - 1) * limit,
       // order: [["id", "ASC"]],
@@ -140,11 +169,15 @@ const getAllFood = async (req, res) => {
         data: response2,
       });
     } else {
-      return res.status(404).send({ message: "No data found" });
+      return res
+        .status(404)
+        .send({ message: error.message || "No data found" });
     }
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ message: "Internal server error!!" });
+    return res
+      .status(500)
+      .send({ message: error.message || "Internal server error!!" });
   }
 };
 
@@ -153,7 +186,6 @@ const getAllFood = async (req, res) => {
 const getSingleFood = async (req, res) => {
   try {
     const foodId = req.params.id;
-
     if (!foodId) {
       return res.status(400).send({ message: "Successfull get", data: record });
     }
@@ -167,10 +199,14 @@ const getSingleFood = async (req, res) => {
     if (record) {
       return res.status(200).send({ message: "Successful get", data: record });
     } else {
-      return res.status(404).send({ message: "No data found" });
+      return res
+        .status(404)
+        .send({ message: error.message || "No data found" });
     }
   } catch (error) {
-    return res.status(500).send({ message: "Internal server error!!!" });
+    return res
+      .status(500)
+      .send({ message: error.message || "Internal server error!!!" });
   }
 };
 
@@ -183,7 +219,9 @@ const deleteFood = async (req, res) => {
     //validation
 
     if (!foodId) {
-      return res.status(400).send({ message: "Food id is not found" });
+      return res
+        .status(404)
+        .send({ message: error.message || "Food id is not found" });
     }
     const response = await Food.destroy({
       where: {
@@ -194,10 +232,14 @@ const deleteFood = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Food deleted" });
     } else {
-      return res.status(404).send({ message: "Something went wrong" });
+      return res
+        .status(404)
+        .send({ message: error.message || "Something went wrong" });
     }
   } catch (error) {
-    return res.status(500).send({ message: "Internal server error!!!" });
+    return res
+      .status(500)
+      .send({ message: error.message || "Internal server error!!!" });
   }
 };
 
