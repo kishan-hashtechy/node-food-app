@@ -59,13 +59,9 @@ const signUp = async (req, res) => {
     const response = await User.create(userData);
 
     if (response) {
-      return res
-        .status(200)
-        .send({ message: error.message || "Signup successfully", response });
+      return res.status(200).send({ message: "Signup successfully", response });
     } else {
-      return res
-        .status(404)
-        .send({ message: error.message || "Something went wrong" });
+      return res.status(404).send({ message: "Something went wrong" });
     }
   } catch (error) {
     console.log(error);
@@ -88,9 +84,7 @@ const signIn = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res
-        .status(404)
-        .send({ message: error.message || "No user found" });
+      return res.status(404).send({ message: "No user found" });
     }
 
     const isPasswordValid = await comparePassword(password, user?.password);
@@ -109,8 +103,8 @@ const signIn = async (req, res) => {
         data: { accessToken, user },
       });
     } else {
-      return res.send({
-        message: error.message || "Invalid email or password.",
+      return res.status(401).send({
+        message: "Invalid email or password.",
       });
     }
   } catch (error) {
@@ -151,9 +145,7 @@ const updateUser = async (req, res) => {
         return res.status(200).send({ message: "User Update !!", response });
       }
     } else {
-      return res
-        .status(404)
-        .send({ message: error.message || "Something went wrong !!!" });
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (error) {
     return res
@@ -189,9 +181,7 @@ const getUser = async (req, res) => {
         .status(200)
         .send({ message: "Successfully GET", data: record });
     } else {
-      return res
-        .status(404)
-        .send({ message: error.message || "Something went wrong !!!" });
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (error) {
     console.log(error);
@@ -220,9 +210,7 @@ const deleteUser = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "User deleted !!" });
     } else {
-      return res
-        .status(404)
-        .send({ message: error.message || "Something went wrong !!!" });
+      return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (error) {
     return res
@@ -256,7 +244,7 @@ const searchItems = async (req, res) => {
         count: response2.data.length,
       });
     } else {
-      return res.send({ message: error.message || "No data found" });
+      return res.send({ message: "No data found" });
     }
   } catch (error) {
     return res

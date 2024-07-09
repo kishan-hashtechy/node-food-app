@@ -94,9 +94,7 @@ const updateAddress = async (req, res) => {
         return res.status(200).send({ message: "Address Update !!", response });
       }
     } else {
-      return res
-        .status(404)
-        .send({ message: error.message || "No record found" });
+      return res.status(404).send({ message: "No record found" });
     }
   } catch (error) {
     return res
@@ -127,9 +125,7 @@ const getAllAddress = async (req, res) => {
         dataCount: record?.count,
       });
     } else {
-      return res
-        .status(404)
-        .send({ message: error.message || "No data found" });
+      return res.status(404).send({ message: "No data found" });
     }
   } catch (error) {
     return res
@@ -157,9 +153,7 @@ const getSingleAddress = async (req, res) => {
     if (record) {
       return res.status(200).send({ message: "Successfull get", data: record });
     } else {
-      return res
-        .status(404)
-        .send({ message: error.message || "No data found" });
+      return res.status(404).send({ message: "No data found" });
     }
   } catch (error) {
     return res
@@ -172,10 +166,11 @@ const getSingleAddress = async (req, res) => {
 const deleteAddress = async (req, res) => {
   try {
     const addressId = req.params.id;
+
     const token = req.headers.authorization;
     const userData = jwt.decode(token);
     //validation
-    if (addressId) {
+    if (!addressId) {
       return res.status(400).send({ message: "user id not found" });
     }
 
@@ -188,9 +183,7 @@ const deleteAddress = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Address deleted !!" });
     } else {
-      return res
-        .status(404)
-        .send({ message: error.message || "Something went wrong !!" });
+      return res.status(404).send({ message: "Something went wrong !!" });
     }
   } catch (error) {
     return res

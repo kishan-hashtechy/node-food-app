@@ -62,6 +62,11 @@ const User = sequelizeInstance.define(
   {
     paranoid: true,
     deletedAt: "deletedAt",
+    defaultScope: {
+      where: {
+        userStatus: "Active",
+      },
+    },
   }
 );
 
