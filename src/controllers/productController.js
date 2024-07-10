@@ -5,7 +5,6 @@ const { Op } = require("sequelize");
 
 const addFood = async (req, res) => {
   try {
-    console.log("addFood ==> ", req.body);
     const {
       name,
       description,
@@ -124,7 +123,6 @@ const getAllFood = async (req, res) => {
     if (!search) {
       query = {
         category: foodCategory,
-        status: "Active",
       };
     } else {
       query = {
@@ -134,10 +132,7 @@ const getAllFood = async (req, res) => {
         [Op.and]: [
           {
             category: foodCategory,
-          },
-          {
-            status: "Active",
-          },
+          }
         ],
       };
     }

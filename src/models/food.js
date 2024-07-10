@@ -52,6 +52,14 @@ const Food = sequelizeInstance.define("Food", {
     allowNull: false,
     defaultValue: "Active",
   },
+},{
+  // paranoid: true,
+  // deletedAt: 'deletedAt',
+  defaultScope:{
+    where:{
+      status: "Active",
+    },
+  }
 });
 
 module.exports = Food;

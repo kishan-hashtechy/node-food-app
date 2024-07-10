@@ -8,7 +8,7 @@ const {
 } = require("../libs/helpers/passwordHasher");
 const Address = require("../models/address");
 const paginate = require("../libs/common/paginate");
-const { Sequelize, Model } = require("sequelize");
+const { Sequelize, Model, where } = require("sequelize");
 const { Op } = require("sequelize");
 const Food = require("../models/food");
 
@@ -26,7 +26,11 @@ const signUp = async (req, res) => {
         .email("Invalid Email")
         .required("Please enter your email"),
       fullName: yup.string().min(4).required("Please enter your full name"),
-      password: yup.string().min(6).required("Please enter your password"),
+      password: yup
+        .string()
+        .min(8, "Password must be 8 chars min")
+        .max(16, "Password must be 16 chars max")
+        .required("Please enter your password"),
       userProfile: yup.string().optional(),
     });
 
@@ -46,7 +50,7 @@ const signUp = async (req, res) => {
       userStatus: "Active",
     };
 
-    if(userProfile){
+    if (userProfile) {
       userData.userProfile = userProfile;
     }
 
@@ -100,10 +104,10 @@ const signIn = async (req, res) => {
         data: { accessToken, user },
       });
     } else {
-      return res.send({ message: "Invalid email or password." });
+      return res.status(401).send({ message: "Invalid email or password." });
     }
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).send({ message: err.message || "Internal Server Error" });
   }
 };
 
@@ -141,7 +145,7 @@ const updateUser = async (req, res) => {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (err) {
-    return res.status(500).send({ message: err.message });
+    return res.status(500).send({ message: err.message || "INternal Server Error" });
   }
 };
 
@@ -174,7 +178,7 @@ const getUser = async (req, res) => {
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
-  }catch (error) {
+  } catch (error) {
     console.log(error);
     return res
       .status(500)
@@ -185,7 +189,7 @@ const getUser = async (req, res) => {
 // DELETE
 const deleteUser = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req?.params?.id;
 
     if (!userId) {
       return res.status(404).send({ message: "user Id not found" });
@@ -203,7 +207,9 @@ const deleteUser = async (req, res) => {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (err) {
-    return res.status(500).send({ message: err.message || "Internal Server Error" });
+    return res
+      .status(500)
+      .send({ message: err.message || "Internal Server Error" });
   }
 };
 
@@ -232,10 +238,12 @@ const searchItems = async (req, res) => {
         count: response2.data.length,
       });
     } else {
-      return res.status(404).send({ message: "No data found"});
+      return res.status(404).send({ message: "No data found" });
     }
   } catch (err) {
-    return res.status(500).send({ message: err.message || "Internal Server Error" });
+    return res
+      .status(500)
+      .send({ message: err.message || "Internal Server Error" });
   }
 };
 

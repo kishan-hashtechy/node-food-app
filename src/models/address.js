@@ -1,4 +1,4 @@
-const { DataTypes } = require("sequelize");
+const { DataTypes, Op } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
 const User = require("../models/user");
 
@@ -57,8 +57,9 @@ const Address = sequelizeInstance.define("Address", {
 },
 {
   paranoid: true,
-  deletedAt: 'deletedAt'
+  deletedAt: 'deletedAt',
 });
+
 // Please add relationship here
 //User.hasMany(Address, { foreignKey: "id" });
 

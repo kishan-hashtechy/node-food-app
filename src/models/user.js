@@ -1,4 +1,4 @@
-const { sequelize, DataTypes } = require("sequelize");
+const { sequelize, DataTypes, Op, where } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
 const Address = require("../models/address");
 
@@ -62,8 +62,20 @@ const User = sequelizeInstance.define(
 
   {
     paranoid: true,
-    deletedAt: "deletedAt",
-  }
+    deletedAt: 'deletedAt',
+
+    defaultScope:{
+      where:{
+        userStatus: "Active",
+      },
+    },
+    hooks:{
+      beforeDestroy: (User) => {
+        User.userStatus = "Inactive";
+        User.save()
+      }
+    }
+  },
 );
 
 // Here pelase check proper relationships working or not...
