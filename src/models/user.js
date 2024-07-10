@@ -59,6 +59,7 @@ const User = sequelizeInstance.define(
       allowNull: true,
     },
   },
+
   {
     paranoid: true,
     deletedAt: "deletedAt",
