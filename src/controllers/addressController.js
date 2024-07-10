@@ -183,7 +183,7 @@ const deleteAddress = async (req, res) => {
     const userData = jwt.decode(token);
     
     //validation
-    if (addressId) {
+    if (!addressId) {
       return res.status(400).send({ message: "user id not found" });
     }
 
