@@ -1,6 +1,7 @@
 const { sequelize, DataTypes, Op, where } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
 const Address = require("../models/address");
+const Order = require("../models/order");
 
 const User = sequelizeInstance.define(
   "User",
@@ -54,9 +55,14 @@ const User = sequelizeInstance.define(
       validate: { isDate: true },
     },
 
-    userStatus: {
+    status: {
       type: DataTypes.ENUM("Active", "Inactive"),
       allowNull: true,
+    },
+
+    cart_code:{
+      type:DataTypes.STRING,
+      allowNull: false,
     },
   },
 
@@ -79,7 +85,9 @@ const User = sequelizeInstance.define(
 );
 
 // Here pelase check proper relationships working or not...
+
 User.hasMany(Address, { foreignKey: "userId" });
+//User.hasMany(Order, { foreignKey: "userId" });
 
 // User.hasMany(Address, {
 //   foreignKey: "userId"
