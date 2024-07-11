@@ -1,8 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
-const Food = require("../models/food");
+const Food = require("./food");
 
-const orderPivot = sequelizeInstance.define("Order_pivot", {
+const cart = sequelizeInstance.define("cart", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -31,8 +31,25 @@ const orderPivot = sequelizeInstance.define("Order_pivot", {
     allowNull: false,
     validate: { isNumeric: true },
   },
+
+  total_price: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    validate: { isNumeric: true },
+  },
+
+  cart_code: {
+    type: DataTypes.STRING(10),
+    allowNull: false,
+    unique: true,
+  },
+
+  cartStatus: {
+    type: DataTypes.ENUM("Removed", "Pending"),
+    allowNull: false,
+  },
 });
 
 orderPivot.hasMany(Food, { foreignKey: "foodId", as: "food" });
 
-module.exports = orderPivot;
+module.exports = cart;

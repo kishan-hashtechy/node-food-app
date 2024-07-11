@@ -1,6 +1,7 @@
 const { sequelize, DataTypes } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
 const Address = require("../models/address");
+const Order = require("../models/order");
 
 const User = sequelizeInstance.define(
   "User",
@@ -58,6 +59,12 @@ const User = sequelizeInstance.define(
       type: DataTypes.ENUM("Active", "Inactive"),
       allowNull: true,
     },
+
+    cart_Code: {
+      type: DataTypes.STRING(10),
+      allowNull: false,
+      unique: true,
+    },
   },
 
   {
@@ -73,6 +80,7 @@ const User = sequelizeInstance.define(
 
 // Here pelase check proper relationships working or not...
 User.hasMany(Address, { foreignKey: "userId" });
+// User.hasMany(Order, { foreignKey: "orderId" });
 
 // User.hasMany(Address, {
 //   foreignKey: "userId"

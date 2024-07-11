@@ -9,6 +9,12 @@ const Order = sequelizeInstance.define("Order", {
     primaryKey: true,
   },
 
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    notEmpty: true,
+  },
+
   delivery_status: {
     type: DataTypes.ENUM(
       "Ready-for-delivery",
@@ -25,9 +31,10 @@ const Order = sequelizeInstance.define("Order", {
     validate: { isNumeric: true },
   },
 
-  coupon_id: {
+  cart_code: {
     type: DataTypes.STRING(10),
     allowNull: false,
+    unique: true,
   },
 
   payment_status: {
@@ -37,6 +44,6 @@ const Order = sequelizeInstance.define("Order", {
   },
 });
 
-Order.belongsTo(User, { foreignKey: "userId", as: "user" });
+// Order.belongsTo(User, { foreignKey: "userId", as: "user" });
 
 module.exports = Order;

@@ -147,7 +147,6 @@ const updateUser = async (req, res) => {
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
-
   } catch (error) {
     return res
       .status(500)
@@ -184,7 +183,7 @@ const getUser = async (req, res) => {
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
-catch (error) {
+  } catch (error) {
     console.log(error);
     return res
       .status(500)
