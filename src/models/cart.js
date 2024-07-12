@@ -9,12 +9,6 @@ const cart = sequelizeInstance.define("cart", {
     primaryKey: true,
   },
 
-  order_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    notEmpty: true,
-  },
-
   user_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -32,11 +26,11 @@ const cart = sequelizeInstance.define("cart", {
     validate: { isNumeric: true },
   },
 
-  total_price: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    validate: { isNumeric: true },
-  },
+  // total_price: {
+  //   type: DataTypes.INTEGER,
+  //   allowNull: false,
+  //   validate: { isNumeric: true },
+  // },
 
   cart_code: {
     type: DataTypes.STRING(10),
@@ -45,8 +39,9 @@ const cart = sequelizeInstance.define("cart", {
   },
 
   cartStatus: {
-    type: DataTypes.ENUM("Removed", "Pending"),
+    type: DataTypes.ENUM("removed", "pending", "confirmed"),
     allowNull: false,
+    defaultValue: "pending",
   },
 });
 

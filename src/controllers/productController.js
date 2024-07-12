@@ -175,7 +175,7 @@ const getSingleFood = async (req, res) => {
   try {
     const foodId = req.params.id;
     if (!foodId) {
-      return res.status(400).send({ message: "Successfull get", data: record });
+      return res.status(400).send({ message: "No data found", data: record });
     }
 
     const record = await Food.findOne({

@@ -62,8 +62,9 @@ const User = sequelizeInstance.define(
 
     cart_Code: {
       type: DataTypes.STRING(10),
-      allowNull: false,
+      allowNull: true,
       unique: true,
+      defaultValue: "null",
     },
   },
 
@@ -80,7 +81,7 @@ const User = sequelizeInstance.define(
 
 // Here pelase check proper relationships working or not...
 User.hasMany(Address, { foreignKey: "userId" });
-// User.hasMany(Order, { foreignKey: "orderId" });
+User.hasMany(Order, { foreignKey: "orderId" });
 
 // User.hasMany(Address, {
 //   foreignKey: "userId"
