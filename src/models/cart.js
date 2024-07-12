@@ -25,11 +25,11 @@ const Cart = sequelizeInstance.define("Cart", {
     type: DataTypes.INTEGER,
     allowNull: false,
     validate: { isNumeric: true },
+    defaultValue: 1,
   },
 
   cart_code: {
     type: DataTypes.STRING,
-    unique: true,
     allowNull: false,
     notEmpty: true,
   },
@@ -42,9 +42,12 @@ const Cart = sequelizeInstance.define("Cart", {
 },{
   paranoid: true,
   deletedAt: 'deletedAt',
+  defaultScope:{
+    cartStatus: 'pending',
+  },
 },
 );
 
-//Cart.belongsTo(User, { foreignKey: "userId" });
+Cart.belongsTo(Food, { foreignKey: 'foodId', targetKey:"id" });
 
 module.exports = Cart;

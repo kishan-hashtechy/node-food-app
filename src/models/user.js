@@ -88,7 +88,9 @@ const User = sequelizeInstance.define(
 // Here pelase check proper relationships working or not...
 
 User.hasMany(Address, { foreignKey: "userId" });
-User.hasMany(Order, { foreignKey: ["userId", 'cart_code'] });
-User.hasMany(Cart, { foreignKey: ["userId", 'cart_code'] });
+User.hasMany(Order, { foreignKey: "userId" });
+User.hasMany(Order, { foreignKey: "cart_code" });
+User.hasMany(Cart, { foreignKey: "userId" });
+User.hasMany(Cart, { foreignKey: "cart_code" });
 
 module.exports = User;

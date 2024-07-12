@@ -8,6 +8,7 @@ const paginate = require("../libs/common/paginate");
 const { Sequelize, Model, where } = require("sequelize");
 const { Op } = require("sequelize");
 const Food = require("../models/food");
+const { cartCodeGenerator } = require("../libs/common/cartCodeGenerator");
 
 //@desc User SIGNUP
 //@route POST / api/user/signup
@@ -16,6 +17,7 @@ const Food = require("../models/food");
 const signUp = async (req, res) => {
   try {
     const { fullName, email, password, userProfile } = req.body;
+    const cart_code = cartCodeGenerator();
 
     const userSignupSchema = yup.object({
       email: yup
@@ -29,6 +31,7 @@ const signUp = async (req, res) => {
         .max(16, "Password must be 16 chars max")
         .required("Please enter your password"),
       userProfile: yup.string().optional(),
+      cart_code: yup.string().required('cart code is required'),
     });
 
     await userSignupSchema.validate({
@@ -36,6 +39,7 @@ const signUp = async (req, res) => {
       fullName,
       password,
       userProfile,
+      cart_code,
     });
 
     const hashedPassword = await hashPassword(password);
@@ -45,6 +49,7 @@ const signUp = async (req, res) => {
       email,
       password: hashedPassword,
       status: "Active",
+      cart_code,
     };
 
     if (userProfile) {
@@ -52,6 +57,13 @@ const signUp = async (req, res) => {
     }
 
     const isAlreadyExits = await User.findOne({ where: { email } });
+
+    const cartCodeExists = await User.findOne({ where: { cart_code } });
+
+    if(cartCodeExists){
+      const newCartCode = cartCodeGenerator();
+      userData.cart_code = newCartCode;
+    }
 
     if (isAlreadyExits) {
       return res.status(400).send({ message: "Email already exists" });

@@ -65,6 +65,6 @@ const Food = sequelizeInstance.define(
   }
 });
 
-//Food.hasMany(Cart, {foreignKey: 'foodId'});
+// Food.hasMany(Cart, {foreignKey: 'foodId', sourceKey:'food'});
 
 module.exports = Food;

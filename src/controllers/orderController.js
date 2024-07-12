@@ -4,7 +4,7 @@ const yup = require("yup");
 
 const createOrder = async (req, res) => {
   try {
-    const userId = req?.query?.userId;
+    const userId = req?.userId;
 
     const { toatal_price, payment_status } = req?.body;
 
@@ -24,7 +24,7 @@ const createOrder = async (req, res) => {
     const orderData = {
         userId,
         toatal_price,
-        cart_code:response,
+        cart_code:response?.cart_code,
         payment_status,
     };
 
@@ -48,7 +48,7 @@ const createOrder = async (req, res) => {
 
 const getAllOrder = async (req, res) => {
     try{
-        const userId = req?.query?.userId;
+        const userId = req?.userId;
 
         if(!userId){
             return res.status(404).send({ messsage: 'user id not found' });
@@ -68,7 +68,7 @@ const getAllOrder = async (req, res) => {
 
 const getCurrenrtOrder = async (req, res) => {
     try{
-        const userId = req?.query?.userId;
+        const userId = req?.userId;
 
         if(!userId){
             return res.status(400).send({ messsage: 'user id not found' });
@@ -77,7 +77,7 @@ const getCurrenrtOrder = async (req, res) => {
         const response = await User.findOne({ where: { id: userId , attribute: [cart_code] } })
 
         if(response){
-            const response2 = await Order.findOne({ where: { cart_code: response } })
+            const response2 = await Order.findOne({ where: { cart_code: response?.cart_code } })
 
             if(response2){
                 return res.status(200).send({ messsage: 'Successfully get', data: response2 });
