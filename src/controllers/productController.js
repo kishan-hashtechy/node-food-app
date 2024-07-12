@@ -6,7 +6,6 @@ const { Op } = require("sequelize");
 
 const addFood = async (req, res) => {
   try {
-    console.log("addFood ==> ", req.body);
     const {
       name,
       description,

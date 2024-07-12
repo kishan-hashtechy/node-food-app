@@ -35,7 +35,7 @@ const cart = sequelizeInstance.define("cart", {
   cart_code: {
     type: DataTypes.STRING(10),
     allowNull: false,
-    unique: true,
+    // unique: true,
   },
 
   cartStatus: {
@@ -45,6 +45,6 @@ const cart = sequelizeInstance.define("cart", {
   },
 });
 
-orderPivot.hasMany(Food, { foreignKey: "foodId", as: "food" });
+cart.belongsTo(Food, { foreignKey: "food_id", targetKey: "id" });
 
 module.exports = cart;

@@ -25,6 +25,7 @@ const addOrder = async (req, res) => {
         attribute: [cart_code],
       },
     });
+
     const orderData = {
       total_price,
       payment_status,
@@ -32,18 +33,13 @@ const addOrder = async (req, res) => {
       cart_code: response,
     };
 
-    if (response) {
-      const response2 = await Order.create(orderData);
-
-      if (response2) {
-        return res.status(200).send({ messsage: "Order added successfully" });
-      } else {
-        return res
-          .status(400)
-          .send({ messsage: "Something occured while creating order" });
-      }
+    const response2 = await Order.create(orderData);
+    if (response2) {
+      return res.status(200).send({ message: "Order added successfully" });
     } else {
-      return res.status(404).send({ messsage: "No data found" });
+      return res
+        .status(400)
+        .send({ message: "Error ocurred while creating order" });
     }
   } catch (error) {
     return res
@@ -63,9 +59,12 @@ const updateOrder = async (req, res) => {
       return res.status(400).send({ message: "Order status not found" });
     }
 
-    const response = await Order.update(orderStatus, {
-      where: { id: orderId },
-    });
+    const response = await Order.update(
+      { status: orderStatus },
+      {
+        where: { id: orderId },
+      }
+    );
 
     if (response) {
       return res.status(200).send({ message: "Updated order status" });
@@ -82,6 +81,7 @@ const updateOrder = async (req, res) => {
 const getAllOrder = async (req, res) => {
   try {
     const userId = req?.query?.userId;
+
     if (!userId) {
       return res.status(400).send({ message: "user id found", data: record });
     }

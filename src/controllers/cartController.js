@@ -1,7 +1,7 @@
-const cart = require("../models/cart");
 const Cart = require("../models/cart");
 const Food = require("../models/food");
 const User = require("../models/user");
+const { use } = require("../routes/product");
 const { addFood } = require("./productController");
 const yup = require("yup");
 
@@ -10,46 +10,39 @@ const addCart = async (req, res) => {
     const userId = req?.query?.userId;
     const foodId = req?.query?.foodId;
 
-    const { no_of_item } = req.body;
-    // cart status --
-    const addCartSchema = yup.object({
-      no_of_item: yup.string().required("Number of item is required"),
-      cart_status: yup.string().required("Cart status is required"),
-    });
-
-    await addCartSchema.validate(req.body);
-
     if (!userId || !foodId) {
-      return res.status(400).send({ message: "user id or food id not found" });
+      return res.status(400).send({ message: "User id or food id not found" });
     }
 
     const response = await User.findOne({
       where: {
         id: userId,
-        attribute: [cart_code],
       },
+      attributes: ["cart_code"],
     });
 
+    if (!response) {
+      return res.status(400).send({ message: "No user found" });
+    }
+
     const cartData = {
-      no_of_item,
-      // cart_status,
-      userId,
-      foodId,
-      cart_code: response?.cart_code,
+      user_id: userId,
+      food_id: foodId,
+      cart_code: response.cart_code,
+      no_of_item: 3,
     };
+    console.log("test ==>", cartData);
 
-    if (response) {
-      const response2 = await Cart.create(cartData);
+    const response2 = await Cart.create(cartData);
 
-      if (response2) {
-        return res.status(200).send({ message: "Successfully Created" });
-      } else {
-        return res
-          .status(400)
-          .send({ message: "Something Occured while creating the data" });
-      }
+    if (response2) {
+      return res
+        .status(200)
+        .send({ message: "Successfully Created", data: response2 });
     } else {
-      return res.status(400).status({ message: "No user Found" });
+      return res
+        .status(400)
+        .send({ message: "Something occurred while creating the data" });
     }
   } catch (error) {
     return res
@@ -64,23 +57,15 @@ const updateCart = async (req, res) => {
   try {
     const userId = req?.query?.userId;
     const foodId = req?.query?.foodId;
-
-    const cartId = req.params.id;
+    const cartId = req?.query?.cartId;
 
     const { no_of_item } = req.body;
 
     const updateCartSchema = yup.object({
-      no_of_items: yup.string().required("Number of items is required"),
-      cart_status: yup.string().required("Cart status is required"),
+      no_of_item: yup.string().required("Number of items is required"),
     });
 
     await updateCartSchema.validate({ no_of_item });
-
-    // const record = await Cart.findOne({
-    //   where: {
-    //     id: cartId,
-    //   },
-    // });
 
     const response = await Cart.update(
       { no_of_item },
@@ -103,15 +88,7 @@ const updateCart = async (req, res) => {
 
 const getAllCart = async (req, res) => {
   try {
-    const cartId = req.params.id;
-    if (!cartId) {
-      return res.status(400).send({ message: "No data found", data: record });
-    }
-    const record = await Cart.findAll({
-      where: {
-        id: cartId,
-      },
-    });
+    const record = await Cart.findAll({});
 
     if (record) {
       return res.status(200).send({ message: "Successful get", data: record });
@@ -131,56 +108,64 @@ const getSingleCart = async (req, res) => {
   try {
     const userId = req?.query?.userId;
     if (!userId) {
-      return res.status(400).send({ message: "No data found", data: record });
+      return res.status(400).send({ message: "No user id found" });
     }
+
     const response = await User.findOne({
       where: {
         id: userId,
-        attribute: [cart_code],
       },
+      attributes: ["cart_code"],
     });
 
-    if (response) {
-      const response2 = await Cart.findAll({
-        where: { cart_code: response.cart_code },
-      });
+    if (!response) {
+      return res.status(400).send({ message: "No user found" });
+    }
 
-      if (response2) {
-        return res
-          .status(200)
-          .send({ message: "Successfully fetched data", data: response2 });
-      } else {
-        return res.status(400).status({ message: "No Cart Data Found" });
-      }
+    const cartItems = await Cart.findAll({
+      where: { cart_code: response.cart_code, cartStatus: "pending" },
+      include: [Food],
+    });
+
+    if (cartItems.length > 0) {
+      return res
+        .status(200)
+        .send({ message: "Successfully fetched data", data: cartItems });
     } else {
-      return res.status(400).send({ message: "No User Data Found" });
+      return res.status(400).send({ message: "No cart data found" });
     }
   } catch (error) {
     return res
       .status(500)
-      .send({ message: error.message || "Internal server error !!" });
+      .send({ message: error.message || "Internal server error" });
   }
 };
 
-//DELETE CART
-// remove item
+// REMOVE ITEM
+
 const deleteCart = async (req, res) => {
   try {
-    const cartId = req?.query?.foodId;
+    const cartId = req?.query?.cartId;
+    const userId = req?.query?.userId;
+    const foodId = req?.query?.foodId;
 
-    if (!cartId) {
-      return res.status(400).send({ message: "No data found", data: record });
+    if (!cartId || !userId || !foodId) {
+      return res.status(400).send({ message: "Parameter missing.." });
     }
+
     const record = await Cart.destroy({
       where: {
         id: cartId,
+        user_id: userId,
+        food_id: foodId,
       },
     });
+    console.log(record);
 
     if (record) {
-      return res.status(200).send({ message: "Cart deleted", data: record });
+      return res.status(200).send({ message: "Item removed successfully.." });
     } else {
-      return res.status(404).send({ message: "Something went wrong" });
+      return res.status(500).send({ message: "Something went wrong" });
     }
   } catch (error) {
     return res

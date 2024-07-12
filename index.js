@@ -21,12 +21,14 @@ app.use(cors());
 app.use("/api/users", require("./src/routes/users"));
 app.use("/api/address", require("./src/routes/address"));
 // app.use("/admin", require("./src/routes/admin"));
-app.use("/product", require("./src/routes/product"));
+app.use("/api/product", require("./src/routes/product"));
+app.use("/api/cart", require("./src/routes/cart"));
+app.use("/api/order", require("./src/routes/order"));
 
 async function dbConnect() {
   try {
     sequelizeInstance.authenticate();
-    // sequelizeInstance.sync({ force: true });
+    sequelizeInstance.sync({ force: false });
     // await User.sync();
     // await Order.sync();
     console.log("Connected to DB");

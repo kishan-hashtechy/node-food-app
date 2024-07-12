@@ -60,7 +60,7 @@ const User = sequelizeInstance.define(
       allowNull: true,
     },
 
-    cart_Code: {
+    cart_code: {
       type: DataTypes.STRING(10),
       allowNull: true,
       unique: true,
