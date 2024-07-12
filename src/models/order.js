@@ -30,9 +30,23 @@ const Order = sequelizeInstance.define("Order", {
   cart_code: {
     type: DataTypes.STRING,
     allowNull: false,
-  }
-});
+  },
 
-Order.belongsTo(User, { foreignKey: "userId"});
+  total_price: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+
+  payment_method: {
+    type: DataTypes.ENUM('Cash', 'Card'),
+    allowNull: false,
+  },
+},{
+  paranoid: true,
+  deletedAt: 'deletedAt',
+},
+);
+
+//Order.belongsTo(User, { foreignKey: "userId"});
 
 module.exports = Order;

@@ -2,6 +2,7 @@ const { sequelize, DataTypes, Op, where } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
 const Address = require("../models/address");
 const Order = require("../models/order");
+const Cart = require("./cart");
 
 const User = sequelizeInstance.define(
   "User",
@@ -72,7 +73,7 @@ const User = sequelizeInstance.define(
 
     defaultScope:{
       where:{
-        userStatus: "Active",
+        status: "Active",
       },
     },
     hooks:{
@@ -87,10 +88,7 @@ const User = sequelizeInstance.define(
 // Here pelase check proper relationships working or not...
 
 User.hasMany(Address, { foreignKey: "userId" });
-//User.hasMany(Order, { foreignKey: "userId" });
-
-// User.hasMany(Address, {
-//   foreignKey: "userId"
-// });
+User.hasMany(Order, { foreignKey: ["userId", 'cart_code'] });
+User.hasMany(Cart, { foreignKey: ["userId", 'cart_code'] });
 
 module.exports = User;

@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
+const Cart = require("./cart");
 
 const Food = sequelizeInstance.define(
   "Food",
@@ -63,5 +64,7 @@ const Food = sequelizeInstance.define(
     },
   }
 });
+
+//Food.hasMany(Cart, {foreignKey: 'foodId'});
 
 module.exports = Food;
