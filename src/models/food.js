@@ -56,8 +56,8 @@ const Food = sequelizeInstance.define(
     defaultValue: "Active",
   },
 },{
-  // paranoid: true,
-  // deletedAt: 'deletedAt',
+  paranoid: true,
+  deletedAt: 'deletedAt',
   defaultScope:{
     where:{
       status: "Active",

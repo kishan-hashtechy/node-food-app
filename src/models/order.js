@@ -20,11 +20,12 @@ const Order = sequelizeInstance.define("Order", {
 
   order_status: {
     type: DataTypes.ENUM(
-      "ready-for-delivery",
+      "order-ready",
+      "out-for-delivery",
       "Delivered",
-      "On-the-way "
     ),
     allowNull: false,
+    defaultValue: 'order-ready'
   },
 
   cart_code: {
@@ -35,6 +36,11 @@ const Order = sequelizeInstance.define("Order", {
   total_price: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+
+  total_quantity:{
+    type: DataTypes.STRING,
+    allowNull: false
   },
 
   payment_method: {

@@ -58,11 +58,14 @@ const signUp = async (req, res) => {
 
     const isAlreadyExits = await User.findOne({ where: { email } });
 
-    const cartCodeExists = await User.findOne({ where: { cart_code } });
+    let newCartCode = cartCodeGenerator()
 
-    if(cartCodeExists){
-      const newCartCode = cartCodeGenerator();
-      userData.cart_code = newCartCode;
+    let cartCodeExists = await User.findOne({ where: { cart_code: newCartCode } })
+
+    while(cartCodeExists){
+        newCartCode = cartCodeGenerator();
+        userData.cart_code = newCartCode;
+        cartCodeExists = await User.findOne({ where: { cart_code: newCartCode } })    
     }
 
     if (isAlreadyExits) {

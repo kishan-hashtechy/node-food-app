@@ -22,7 +22,7 @@ const addCart = async (req, res) => {
     where:{
       id: userId,
     },
-    attribute:['cart_code']
+    attributes:['cart_code']
   });
 
   const cartData = {
@@ -83,7 +83,7 @@ const getCart = async (req, res) => {
       return res.status(400).send({ message: "user id not found" })
     }
 
-    const response = await User.findOne({ where: { id: userId }, attribute: [`cart_code`] });
+    const response = await User.findOne({ where: { id: userId }, attributes: [`cart_code`] });
 
     if(response){
       const response2 = await Cart.findAll({ where: { cart_code: response?.cart_code } , include: [Food] });

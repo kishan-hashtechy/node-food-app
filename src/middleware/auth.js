@@ -7,13 +7,13 @@ const auth = (req, res, next) => {
 
     if (token) {
       let user = jwt.verify(token, SECRET_KEY);
-      req.userId = user.user.id;
+      req.userId = user?.user?.id;
     } else {
-      res.status(401).send({ message: "Please add token..." });
+      return res.status(401).send({ message: "Please add token..." });
     }
     next();
   } catch (error) {
-    res.status(401).send({ message: error.message || "Unauthorized User" });
+    return res.status(401).send({ message: error.message || "Unauthorized User" });
   }
 };
 
