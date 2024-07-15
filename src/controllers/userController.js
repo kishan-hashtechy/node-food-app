@@ -72,9 +72,9 @@ const signUp = async (req, res) => {
       return res.status(400).send({ message: "Email already exists" });
     }
 
-    const response = await User.create(userData);
+    const createUser = await User.create(userData);
 
-    if (response) {
+    if (createUser) {
       return res.status(200).send({ message: "Signup successfully", response });
     } else {
       return res.status(400).send({ message: "Something went wrong" });
@@ -84,8 +84,8 @@ const signUp = async (req, res) => {
   }
 };
 
-// @DESC: SingIn User
 
+// @DESC: SingIn User
 const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -141,17 +141,18 @@ const updateUser = async (req, res) => {
     } = req.body;
 
     const data = req.body;
-    const record = await User.findOne({
+
+    const user = await User.findOne({
       where: {
         id: userId,
       },
     });
 
-    if (record) {
-      const response = await User.update(data, { where: { id: userId } });
+    if (user) {
+      const userData = await User.update(data, { where: { id: userId } });
 
-      if (response) {
-        return res.status(200).send({ message: "User Update !!", response });
+      if (userData) {
+        return res.status(200).send({ message: "User Updated!!", response });
       }
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
@@ -164,13 +165,13 @@ const updateUser = async (req, res) => {
 // GET
 const getUser = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req?.userId;
 
     if (!userId) {
       return res.status(400).send({ message: "user id not found" });
     }
 
-    const record = await User.findOne({
+    const user = await User.findOne({
       where: {
         id: userId,
       },
@@ -183,10 +184,10 @@ const getUser = async (req, res) => {
       order: [[Address, "createdAt", "DESC"]],
     });
 
-    if (record) {
+    if (user) {
       return res
         .status(200)
-        .send({ message: "Successfully GET", data: record });
+        .send({ message: "Successfully GET", data: user });
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
@@ -207,13 +208,13 @@ const deleteUser = async (req, res) => {
       return res.status(404).send({ message: "user Id not found" });
     }
 
-    const response = await User.destroy({
+    const user = await User.destroy({
       where: {
         id: userId,
       },
     });
 
-    if (response) {
+    if (user) {
       return res.status(200).send({ message: "User deleted !!" });
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
@@ -228,10 +229,10 @@ const deleteUser = async (req, res) => {
 const searchItems = async (req, res) => {
   try {
     const search = req.query.search || "";
-    const limit = parseInt(req.query.limit) || 10;
-    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req?.query?.limit) || 10;
+    const page = parseInt(req?.query?.page) || 1;
 
-    const response = await Food.findAndCountAll({
+    const searchData = await Food.findAndCountAll({
       where: {
         name: {
           [Op.iLike]: `%${search}%`,
@@ -241,13 +242,13 @@ const searchItems = async (req, res) => {
       offset: (page - 1) * limit,
     });
 
-    const response2 = paginate(page, response?.count, limit, response?.rows);
+    const response2 = paginate(page, searchData?.count, limit, searchData?.rows);
 
     if (response?.rows?.length) {
       return res.status(200).send({
         message: "Search successful",
-        data: response2.data,
-        count: response2.data.length,
+        data: response2?.data,
+        count: response2?.data?.length,
       });
     } else {
       return res.status(404).send({ message: "No data found" });

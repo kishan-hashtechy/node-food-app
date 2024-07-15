@@ -22,7 +22,7 @@ const Order = sequelizeInstance.define("Order", {
     type: DataTypes.ENUM(
       "order-ready",
       "out-for-delivery",
-      "Delivered",
+      "delivered",
     ),
     allowNull: false,
     defaultValue: 'order-ready'

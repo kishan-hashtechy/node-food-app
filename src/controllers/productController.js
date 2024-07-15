@@ -101,17 +101,15 @@ const updateFood = async (req, res) => {
 };
 
 //GET ALL FOOD
-
 const getAllFood = async (req, res) => {
   try {
     const foodCategory = req?.query?.category;
     const limit = parseInt(req.query.limit) || 5;
     const page = parseInt(req.query.page) || 1;
-    const status = req?.query?.status;
     const search = req.query.search || "";
 
     if (!foodCategory) {
-      return res.status(404).send({ message: "User id not found" });
+      return res.status(404).send({ message: "food category not found" });
     }
 
     if (!search) {

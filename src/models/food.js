@@ -34,7 +34,7 @@ const Food = sequelizeInstance.define(
     },
 
     category: {
-      type: DataTypes.ENUM("Foods", "Drinks", "Snacks", "Sauce"),
+      type: DataTypes.ENUM("Foods", "Drinks", "Snacks", "Sauces"),
       allowNull: false,
       defaultValue: "Foods",
     },

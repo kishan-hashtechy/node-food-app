@@ -4,6 +4,7 @@ const yup = require("yup");
 const { cartCodeGenerator } = require("../libs/common/cartCodeGenerator");
 const Cart = require("../models/cart");
 const Food = require("../models/food");
+const { Op } = require("sequelize");
 
 const createOrder = async (req, res) => {
   try {
@@ -20,31 +21,27 @@ const createOrder = async (req, res) => {
 
     await createOrderSchema.validate({ payment_method });
 
-    const response = await User.findOne({
+    const findCartCode = await User.findOne({
       where: { id: userId },
       attributes: ["cart_code"],
     });
 
-    const findItems = await Cart.findOne({
-      where: { cart_code: response?.cart_code },
+    const cartData = await Cart.findAll({
+      where: { userId, cart_code: findCartCode?.cart_code },
+      attributes: ["no_of_item", "cart_code"],
+      include: [Food],
     });
 
-    if (!findItems) {
+    if (!cartData) {
       return res
         .status(400)
         .send({ messsage: "Please add an Item to the Cart" });
     }
 
-    const quantity = await Cart.findAll({
-      where: { userId, cart_code: response?.cart_code },
-      attributes: ["no_of_item"],
-      include: [Food],
-    });
-
     let total_quantity = 0,
       total_price = 0;
 
-    quantity?.map((items) => {
+    cartData?.map((items) => {
       total_quantity += items?.no_of_item;
       total_price += items?.no_of_item * items?.Food?.price;
     });
@@ -53,11 +50,11 @@ const createOrder = async (req, res) => {
       userId,
       total_price,
       total_quantity,
-      cart_code: response?.cart_code,
+      cart_code: findCartCode?.cart_code,
       payment_method,
     };
 
-    if (response) {
+    if (findCartCode) {
       let newCartCode = cartCodeGenerator();
 
       let cartCodeExists = await User.findOne({
@@ -73,7 +70,7 @@ const createOrder = async (req, res) => {
 
       const updateCart = await Cart.update(
         { cartStatus: "confirmed" },
-        { where: { cart_code: response?.cart_code } }
+        { where: { cart_code: findCartCode?.cart_code } }
       );
 
       if (updateCart > 0) {
@@ -83,8 +80,8 @@ const createOrder = async (req, res) => {
         );
 
         if (updateUser > 0) {
-          const response2 = await Order.create(orderData);
-          if (response2) {
+          const createOrderTable = await Order.create(orderData);
+          if (createOrderTable) {
             return res
               .status(200)
               .send({ messsage: "Order added successfully" });
@@ -117,18 +114,18 @@ const getAllOrder = async (req, res) => {
       return res.status(404).send({ messsage: "user id not found" });
     }
 
-    const response = await Order.findAll({ where: { userId } });
+    const findOrder = await Order.findAll({ where: { userId, order_status: 'delivered' }, order:['createdAt', 'DESC'] });
 
-    if (response?.length) {
-      const response2 = await Cart.findAll({
-        where: { where: { cart_code: response?.cart_code } },
+    if (findOrder?.length) {
+      const foodData = await Cart.findAll({
+        where: { where: { cart_code: findOrder?.cart_code } },
         include: [Food],
       });
 
-      if (response2) {
+      if (foodData) {
         return res
           .status(200)
-          .send({ messsage: "successfully get", data: response });
+          .send({ messsage: "successfully get", data: { findOrder, foodData } });
       }
     } else {
       return res
@@ -150,25 +147,29 @@ const getCurrenrtOrder = async (req, res) => {
       return res.status(400).send({ messsage: "user id not found" });
     }
 
-    const response = await Order.findOne({
-      where: { userId },
+    const orderData = await Order.findOne({
+      where: { 
+        userId,
+        [Op.not]:[
+          {order_status: 'delivered'},
+        ],
+      },
       order: [["createdAt", "DESC"]],
     });
 
-    if (response) {
-      const response2 = await Cart.unscoped().findAll({
-        where: { cart_code: response?.cart_code },
+    if (orderData) {
+      const cartData = await Cart.unscoped().findAll({
+        where: { cart_code: findOrder?.cart_code },
         include: [Food],
       });
 
-      if (response2) {
-        return res
-          .status(200)
-          .send({
-            messsage: "Successfully Fetched",
-            data: { response, response2 },
-          });
-      } else {
+      if (cartData) {
+        return res.status(200).send({
+          messsage: "Successfully Fetched",
+          data: { orderData, cartData },
+        });
+      }else{
+        return res.status(400).send({ messsage: 'no cart data found' })
       }
     } else {
       return res.status(400).send({ messsage: "no current order found" });
@@ -188,9 +189,9 @@ const deleteOrder = async (req, res) => {
       return res.status(400).send({ messsage: "order id not found" });
     }
 
-    const response = await Order.destroy({ where: { id: orderId } });
+    const deleteOrder = await Order.destroy({ where: { id: orderId } });
 
-    if (response) {
+    if (deleteOrder) {
       return res.status(200).send({ messsage: "Updated Order status" });
     } else {
       return res.status(400).send({ messsage: "Failed to update" });
