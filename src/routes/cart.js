@@ -5,15 +5,15 @@ const auth = require("../middleware/auth");
 const {
   addCart,
   updateCart,
-  getAllCart,
-  getSingleCart,
+  // getAllCart,
+  getCart,
   deleteCart,
 } = require("../controllers/cartController");
 
 router.post("/add-cart", auth, addCart);
 router.put("/update-cart", auth, updateCart);
-router.get("/getall-cart", auth, getAllCart);
-router.get("/getsingle-cart", auth, getSingleCart);
+// router.get("/getall-cart", auth, getAllCart);
+router.get("/get-cart", auth, getCart);
 router.delete("/delete-cart", auth, deleteCart);
 
 module.exports = router;

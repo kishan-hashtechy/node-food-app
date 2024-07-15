@@ -59,7 +59,7 @@ const signUp = async (req, res) => {
 
     const cartCodeEits = await User.findOne({ where: { cart_code } });
 
-    if (cartCodeEits) {
+    if (cartCodeExists) {
       const newCartCode = cartCodeGenerator();
       userData.cart_code = newCartCode;
     }

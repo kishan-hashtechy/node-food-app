@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     console.log("Here");
-    req.body.foodImage = `/food_image/` + Date.now() + "-" + file.originalname;
+    req.body.foodImage = `/profile_img/` + Date.now() + "-" + file.originalname;
     cb(null, Date.now() + "-" + file.originalname);
   },
 });

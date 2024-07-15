@@ -84,29 +84,29 @@ const updateCart = async (req, res) => {
   }
 };
 
-//GET ALL CART
+// //GET ALL CART
 
-const getAllCart = async (req, res) => {
+// const getAllCart = async (req, res) => {
+//   try {
+//     const record = await Cart.findAll({});
+
+//     if (record) {
+//       return res.status(200).send({ message: "Successful get", data: record });
+//     } else {
+//       return res.status(404).send({ message: "No data found" });
+//     }
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .send({ message: error.message || "Internal server error !!" });
+//   }
+// };
+
+//GET CART
+
+const getCart = async (req, res) => {
   try {
-    const record = await Cart.findAll({});
-
-    if (record) {
-      return res.status(200).send({ message: "Successful get", data: record });
-    } else {
-      return res.status(404).send({ message: "No data found" });
-    }
-  } catch (error) {
-    return res
-      .status(500)
-      .send({ message: error.message || "Internal server error !!" });
-  }
-};
-
-//GET SINGLE CART
-
-const getSingleCart = async (req, res) => {
-  try {
-    const userId = req?.query?.userId;
+    const userId = req.userId;
     if (!userId) {
       return res.status(400).send({ message: "No user id found" });
     }
@@ -117,6 +117,7 @@ const getSingleCart = async (req, res) => {
       },
       attributes: ["cart_code"],
     });
+    console.log(response);
 
     if (!response) {
       return res.status(400).send({ message: "No user found" });
@@ -174,4 +175,4 @@ const deleteCart = async (req, res) => {
   }
 };
 
-module.exports = { addCart, updateCart, getSingleCart, getAllCart, deleteCart };
+module.exports = { addCart, updateCart, getCart, deleteCart };

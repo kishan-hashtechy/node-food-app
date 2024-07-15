@@ -151,7 +151,7 @@ const getAllFood = async (req, res) => {
     });
 
     const response2 = paginate(page, getItems.count, limit, getItems.rows);
-
+    console.log(getItems.rows);
     if (getItems && getItems.rows.length >= 1) {
       return res.status(200).send({
         message: "Get food successfully",
@@ -173,6 +173,7 @@ const getAllFood = async (req, res) => {
 const getSingleFood = async (req, res) => {
   try {
     const foodId = req.params.id;
+    console.log(foodId);
     if (!foodId) {
       return res.status(400).send({ message: "No data found", data: record });
     }
