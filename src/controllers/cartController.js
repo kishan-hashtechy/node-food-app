@@ -55,11 +55,8 @@ const addCart = async (req, res) => {
 
 const updateCart = async (req, res) => {
   try {
-    const userId = req?.query?.userId;
-    const foodId = req?.query?.foodId;
     const cartId = req?.query?.cartId;
-
-    const { no_of_item } = req.body;
+    const no_of_item = req?.query?.no_of_item;
 
     const updateCartSchema = yup.object({
       no_of_item: yup.string().required("Number of items is required"),
@@ -72,8 +69,8 @@ const updateCart = async (req, res) => {
       { where: { id: cartId } }
     );
 
-    if (response) {
-      return res.status(200).send({ message: "Cart Update", response });
+    if (response > 0) {
+      return res.status(200).send({ message: "Cart Update" });
     } else {
       return res.status(404).send({ message: "Cart item not found" });
     }
@@ -147,7 +144,7 @@ const getCart = async (req, res) => {
 const deleteCart = async (req, res) => {
   try {
     const cartId = req?.query?.cartId;
-    const userId = req?.query?.userId;
+    const userId = req?.userId;
     const foodId = req?.query?.foodId;
 
     if (!cartId || !userId || !foodId) {
