@@ -2,15 +2,13 @@ const User = require("../models/user");
 const yup = require("yup");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const {
-  hashPassword,
-  comparePassword,
-} = require("../libs/helpers/passwordHasher");
+const { hashPassword, comparePassword } = require("../libs/helpers/passwordHasher");
 const Address = require("../models/address");
 const paginate = require("../libs/common/paginate");
-const { Sequelize, Model } = require("sequelize");
+const { Sequelize, Model, where } = require("sequelize");
 const { Op } = require("sequelize");
 const Food = require("../models/food");
+const { cartCodeGenerator } = require("../libs/common/cartCodeGenerator");
 
 //@desc User SIGNUP
 //@route POST / api/user/signup
@@ -19,6 +17,7 @@ const Food = require("../models/food");
 const signUp = async (req, res) => {
   try {
     const { fullName, email, password, userProfile } = req.body;
+    const cart_code = cartCodeGenerator();
 
     const userSignupSchema = yup.object({
       email: yup
@@ -26,8 +25,13 @@ const signUp = async (req, res) => {
         .email("Invalid Email")
         .required("Please enter your email"),
       fullName: yup.string().min(4).required("Please enter your full name"),
-      password: yup.string().min(6).required("Please enter your password"),
+      password: yup
+        .string()
+        .min(8, "Password must be 8 chars min")
+        .max(16, "Password must be 16 chars max")
+        .required("Please enter your password"),
       userProfile: yup.string().optional(),
+      cart_code: yup.string().required('cart code is required'),
     });
 
     await userSignupSchema.validate({
@@ -35,6 +39,7 @@ const signUp = async (req, res) => {
       fullName,
       password,
       userProfile,
+      cart_code,
     });
 
     const hashedPassword = await hashPassword(password);
@@ -43,7 +48,8 @@ const signUp = async (req, res) => {
       fullName,
       email,
       password: hashedPassword,
-      userStatus: "Active",
+      status: "Active",
+      cart_code,
     };
 
     if (userProfile) {
@@ -52,27 +58,34 @@ const signUp = async (req, res) => {
 
     const isAlreadyExits = await User.findOne({ where: { email } });
 
+    let newCartCode = cartCodeGenerator()
+
+    let cartCodeExists = await User.findOne({ where: { cart_code: newCartCode } })
+
+    while(cartCodeExists){
+        newCartCode = cartCodeGenerator();
+        userData.cart_code = newCartCode;
+        cartCodeExists = await User.findOne({ where: { cart_code: newCartCode } })    
+    }
+
     if (isAlreadyExits) {
       return res.status(400).send({ message: "Email already exists" });
     }
 
-    const response = await User.create(userData);
+    const createUser = await User.create(userData);
 
-    if (response) {
+    if (createUser) {
       return res.status(200).send({ message: "Signup successfully", response });
     } else {
-      return res.status(404).send({ message: "Something went wrong" });
+      return res.status(400).send({ message: "Something went wrong" });
     }
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .send({ message: error.message || "Internal Server Error" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message });
   }
 };
 
-// @DESC: SingIn User
 
+// @DESC: SingIn User
 const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -103,14 +116,10 @@ const signIn = async (req, res) => {
         data: { accessToken, user },
       });
     } else {
-      return res.status(401).send({
-        message: "Invalid email or password.",
-      });
+      return res.status(401).send({ message: "Invalid email or password." });
     }
-  } catch (error) {
-    return res
-      .status(500)
-      .send({ message: error.message || "Internal server error!!" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message || "Internal Server Error" });
   }
 };
 
@@ -118,7 +127,7 @@ const signIn = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req?.params?.id;
 
     const {
       fullName,
@@ -132,39 +141,37 @@ const updateUser = async (req, res) => {
     } = req.body;
 
     const data = req.body;
-    const record = await User.findOne({
+
+    const user = await User.findOne({
       where: {
         id: userId,
       },
     });
 
-    if (record) {
-      const response = await User.update(data, { where: { id: userId } });
+    if (user) {
+      const userData = await User.update(data, { where: { id: userId } });
 
-      if (response) {
-        return res.status(200).send({ message: "User Update !!", response });
+      if (userData) {
+        return res.status(200).send({ message: "User Updated!!", response });
       }
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
-
-  } catch (error) {
-    return res
-      .status(500)
-      .send({ message: error.message || "Internal Server Error" });
+  } catch (err) {
+    return res.status(500).send({ message: err.message || "INternal Server Error" });
   }
 };
 
 // GET
 const getUser = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req?.userId;
 
     if (!userId) {
       return res.status(400).send({ message: "user id not found" });
     }
 
-    const record = await User.findOne({
+    const user = await User.findOne({
       where: {
         id: userId,
       },
@@ -177,14 +184,14 @@ const getUser = async (req, res) => {
       order: [[Address, "createdAt", "DESC"]],
     });
 
-    if (record) {
+    if (user) {
       return res
         .status(200)
-        .send({ message: "Successfully GET", data: record });
+        .send({ message: "Successfully GET", data: user });
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
-catch (error) {
+  } catch (error) {
     console.log(error);
     return res
       .status(500)
@@ -195,37 +202,37 @@ catch (error) {
 // DELETE
 const deleteUser = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = req?.params?.id;
 
     if (!userId) {
       return res.status(404).send({ message: "user Id not found" });
     }
 
-    const response = await User.destroy({
+    const user = await User.destroy({
       where: {
         id: userId,
       },
     });
 
-    if (response) {
+    if (user) {
       return res.status(200).send({ message: "User deleted !!" });
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
-  } catch (error) {
+  } catch (err) {
     return res
       .status(500)
-      .send({ message: error.message || "Internal server error" });
+      .send({ message: err.message || "Internal Server Error" });
   }
 };
 
 const searchItems = async (req, res) => {
   try {
     const search = req.query.search || "";
-    const limit = parseInt(req.query.limit) || 10;
-    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req?.query?.limit) || 10;
+    const page = parseInt(req?.query?.page) || 1;
 
-    const response = await Food.findAndCountAll({
+    const searchData = await Food.findAndCountAll({
       where: {
         name: {
           [Op.iLike]: `%${search}%`,
@@ -235,21 +242,21 @@ const searchItems = async (req, res) => {
       offset: (page - 1) * limit,
     });
 
-    const response2 = paginate(page, response?.count, limit, response?.rows);
+    const response2 = paginate(page, searchData?.count, limit, searchData?.rows);
 
-    if (response.rows.length) {
+    if (response?.rows?.length) {
       return res.status(200).send({
         message: "Search successful",
-        data: response2.data,
-        count: response2.data.length,
+        data: response2?.data,
+        count: response2?.data?.length,
       });
     } else {
-      return res.send({ message: "No data found" });
+      return res.status(404).send({ message: "No data found" });
     }
-  } catch (error) {
+  } catch (err) {
     return res
       .status(500)
-      .send({ message: error.message || "Internal Server Error" });
+      .send({ message: err.message || "Internal Server Error" });
   }
 };
 

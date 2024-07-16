@@ -14,7 +14,7 @@ const addAddress = async (req, res) => {
       receiverNumber,
     } = req.body;
 
-    const userId = req.userId;
+    const userId = req?.userId;
 
     if (!userId) {
       return res.status(400).send({ message: "User id not found." });
@@ -43,6 +43,12 @@ const addAddress = async (req, res) => {
       receiverNumber,
     };
 
+    const countAddress = await Address.findAndCountAll({ where: { userId } })
+
+    if(countAddress >= 5){
+      return res.status(400).send({ message: "Can't add more than five address" })
+    }
+
     const response = await Address.create(addressData);
 
     if (response) {
@@ -62,7 +68,7 @@ const addAddress = async (req, res) => {
 //UPDATE
 const updateAddress = async (req, res) => {
   try {
-    const addressId = req.params.id;
+    const addressId = req?.params?.id;
 
     if (!addressId) {
       return res.status(400).send({ message: "address id not found" });
@@ -93,7 +99,9 @@ const updateAddress = async (req, res) => {
         return res.status(200).send({ message: "Address Update !!", response });
       }
     } else {
-      return res.status(404).send({ message: "No record found" });
+      return res
+        .status(404)
+        .send({ message: "No record found" });
     }
   } catch (error) {
     return res
@@ -105,7 +113,7 @@ const updateAddress = async (req, res) => {
 //GET
 const getAllAddress = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req?.userId;
 
     if (!userId) {
       return res.status(400).send({ message: "user id not found" });
@@ -125,7 +133,9 @@ const getAllAddress = async (req, res) => {
       });
 
     } else {
-      return res.status(404).send({ message: "No data found" });
+      return res
+        .status(404)
+        .send({ message:"No data found" });
     }
   } catch (error) {
     return res
@@ -138,7 +148,7 @@ const getAllAddress = async (req, res) => {
 
 const getSingleAddress = async (req, res) => {
   try {
-    const addressId = req.params.id;
+    const addressId = req?.params?.id;
 
     if (!addressId) {
       return res.status(400).send({ message: "Address is not found" });
@@ -153,7 +163,9 @@ const getSingleAddress = async (req, res) => {
     if (record) {
       return res.status(200).send({ message: "Successfull get", data: record });
     } else {
-      return res.status(404).send({ message: "No data found" });
+      return res
+        .status(404)
+        .send({ message: "No data found" });
     }
   } catch (error) {
     return res
@@ -166,10 +178,10 @@ const getSingleAddress = async (req, res) => {
 //DELETE
 const deleteAddress = async (req, res) => {
   try {
-    const addressId = req.params.id;
-
+    const addressId = req?.params?.id;
     const token = req.headers.authorization;
     const userData = jwt.decode(token);
+    
     //validation
     if (!addressId) {
       return res.status(400).send({ message: "user id not found" });
@@ -184,7 +196,9 @@ const deleteAddress = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Address deleted !!" });
     } else {
-      return res.status(404).send({ message: "Something went wrong !!" });
+      return res
+        .status(404)
+        .send({ message: "Something went wrong !!" });
     }
   } catch (error) {
     return res

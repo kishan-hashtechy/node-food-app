@@ -1,12 +1,10 @@
 const Food = require("../models/food");
 const yup = require("yup");
 const paginate = require("../libs/common/paginate");
-const { search } = require("../routes/product");
 const { Op } = require("sequelize");
 
 const addFood = async (req, res) => {
   try {
-    console.log("addFood ==> ", req.body);
     const {
       name,
       description,
@@ -62,33 +60,22 @@ const addFood = async (req, res) => {
 
 const updateFood = async (req, res) => {
   try {
-    const foodId = req.params.id;
+    const foodId = req?.params?.id;
 
-    console.log(req.body);
-
-    const {
-      name,
-      description,
-      price,
-      foodImage,
-      type,
-      category,
-      rating,
-      status,
-    } = req.body;
+    const { ...foodData } = req.body;
 
     const updateFoodSchema = yup.object({
-      name: yup.string().required("Name is required"),
-      description: yup.string().required("Description is required"),
-      price: yup.string().required("Price is required"),
-      foodImage: yup.string().required("Food image is required"),
-      type: yup.string().required("Type is required"),
-      category: yup.string().required("Category is required"),
+      name: yup.string().optional(),
+      description: yup.string().optional(),
+      price: yup.string().optional(),
+      foodImage: yup.string().optional(),
+      type: yup.string().optional(),
+      category: yup.string().optional(),
       rating: yup.string().optional(),
       status: yup.string().optional(),
     });
 
-    const data = req.body;
+    await updateFoodSchema.validate(foodData)
 
     const record = await Food.findOne({
       where: {
@@ -97,7 +84,7 @@ const updateFood = async (req, res) => {
     });
 
     if (record) {
-      const response = await Food.update(data, { where: { id: foodId } });
+      const response = await Food.update(foodData, { where: { id: foodId } });
 
       if (response) {
         return res.status(200).send({ message: "Food update", response });
@@ -114,17 +101,15 @@ const updateFood = async (req, res) => {
 };
 
 //GET ALL FOOD
-
 const getAllFood = async (req, res) => {
   try {
     const foodCategory = req?.query?.category;
     const limit = parseInt(req.query.limit) || 5;
     const page = parseInt(req.query.page) || 1;
-    const status = req?.query?.status;
     const search = req.query.search || "";
 
     if (!foodCategory) {
-      return res.status(404).send({ message: "User id not found" });
+      return res.status(404).send({ message: "food category not found" });
     }
 
     if (!search) {
@@ -139,7 +124,7 @@ const getAllFood = async (req, res) => {
         [Op.and]: [
           {
             category: foodCategory,
-          },
+          }
         ],
       };
     }
@@ -148,18 +133,19 @@ const getAllFood = async (req, res) => {
       where: query,
       limit,
       offset: (page - 1) * limit,
-      // order: [["id", "ASC"]],
     });
 
     const response2 = paginate(page, getItems.count, limit, getItems.rows);
 
-    if (getItems && getItems.rows.length >= 1) {
+    if (getItems && getItems?.rows?.length >= 1) {
       return res.status(200).send({
         message: "Get food successfully",
         data: response2,
       });
     } else {
-      return res.status(404).send({ message: "No data found" });
+      return res
+        .status(404)
+        .send({ message: "No data found" });
     }
   } catch (error) {
     console.log(error);
@@ -173,7 +159,8 @@ const getAllFood = async (req, res) => {
 
 const getSingleFood = async (req, res) => {
   try {
-    const foodId = req.params.id;
+    const foodId = req?.params?.id;
+
     if (!foodId) {
       return res.status(400).send({ message: "Successfull get", data: record });
     }
@@ -187,7 +174,9 @@ const getSingleFood = async (req, res) => {
     if (record) {
       return res.status(200).send({ message: "Successful get", data: record });
     } else {
-      return res.status(404).send({ message: "No data found" });
+      return res
+        .status(404)
+        .send({ message: "No data found" });
     }
   } catch (error) {
     return res
@@ -200,13 +189,13 @@ const getSingleFood = async (req, res) => {
 
 const deleteFood = async (req, res) => {
   try {
-    const foodId = req.params.id;
+    const foodId = req?.params?.id;
 
     //validation
-
     if (!foodId) {
       return res.status(404).send({ message: "Food id is not found" });
     }
+
     const response = await Food.destroy({
       where: {
         id: foodId,
@@ -216,7 +205,9 @@ const deleteFood = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Food deleted" });
     } else {
-      return res.status(404).send({ message: "Something went wrong" });
+      return res
+        .status(404)
+        .send({ message:"Something went wrong" });
     }
   } catch (error) {
     return res

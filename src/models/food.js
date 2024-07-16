@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
+const Cart = require("./cart");
 
 const Food = sequelizeInstance.define(
   "Food",
@@ -33,7 +34,7 @@ const Food = sequelizeInstance.define(
     },
 
     category: {
-      type: DataTypes.ENUM("Foods", "Drinks", "Snacks", "Sauce"),
+      type: DataTypes.ENUM("Foods", "Drinks", "Snacks", "Sauces"),
       allowNull: false,
       defaultValue: "Foods",
     },
@@ -49,19 +50,21 @@ const Food = sequelizeInstance.define(
       validate: { isDecimal: true },
     },
 
-    status: {
-      type: DataTypes.ENUM("Active", "Inactive"),
-      allowNull: false,
-      defaultValue: "Active",
-    },
+  status: {
+    type: DataTypes.ENUM("Active", "Inactive"),
+    allowNull: false,
+    defaultValue: "Active",
   },
-  {
-    defaultScope: {
-      where: {
-        status: "Active",
-      },
+},{
+  paranoid: true,
+  deletedAt: 'deletedAt',
+  defaultScope:{
+    where:{
+      status: "Active",
     },
   }
-);
+});
+
+// Food.hasMany(Cart, {foreignKey: 'foodId', sourceKey:'food'});
 
 module.exports = Food;

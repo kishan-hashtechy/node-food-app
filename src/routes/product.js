@@ -19,7 +19,6 @@ const storage = multer.diskStorage({
     return cb(null, path);
   },
   filename: function (req, file, cb) {
-    console.log("Here");
     req.body.foodImage = `/food_image/` + Date.now() + "-" + file.originalname;
     cb(null, Date.now() + "-" + file.originalname);
   },
@@ -28,7 +27,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 router.post("/add-food", upload.single("foodImage"), addFood);
-router.put("/update-food/:id", upload.single("foodImage"), updateFood);
+router.patch("/update-food/:id", upload.single("foodImage"), updateFood);
 router.get("/getall-food", getAllFood);
 router.get("/getsingle-food/:id", getSingleFood);
 router.delete("/delete-food/:id", deleteFood);

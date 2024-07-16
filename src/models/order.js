@@ -9,34 +9,50 @@ const Order = sequelizeInstance.define("Order", {
     primaryKey: true,
   },
 
-  delivery_status: {
+  userId:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    refrence: {
+      model: "User",
+      key: "id",
+    }, 
+  },
+
+  order_status: {
     type: DataTypes.ENUM(
-      "Ready-for-delivery",
-      "Delivered",
-      "Rejected",
-      "On-the-way "
+      "order-ready",
+      "out-for-delivery",
+      "delivered",
     ),
+    allowNull: false,
+    defaultValue: 'order-ready'
+  },
+
+  cart_code: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
 
   total_price: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    validate: { isNumeric: true },
-  },
-
-  coupon_id: {
-    type: DataTypes.STRING(10),
+    type: DataTypes.STRING,
     allowNull: false,
   },
 
-  payment_status: {
-    type: DataTypes.STRING(10),
-    allowNull: false,
-    validate: { isAlpha: true },
+  total_quantity:{
+    type: DataTypes.STRING,
+    allowNull: false
   },
-});
 
-Order.belongsTo(User, { foreignKey: "userId", as: "user" });
+  payment_method: {
+    type: DataTypes.ENUM('Cash', 'Card'),
+    allowNull: false,
+  },
+},{
+  paranoid: true,
+  deletedAt: 'deletedAt',
+},
+);
+
+//Order.belongsTo(User, { foreignKey: "userId"});
 
 module.exports = Order;
