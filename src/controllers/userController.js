@@ -75,7 +75,7 @@ const signUp = async (req, res) => {
     const createUser = await User.create(userData);
 
     if (createUser) {
-      return res.status(200).send({ message: "Signup successfully", response });
+      return res.status(200).send({ message: "Signup successfully", createUser });
     } else {
       return res.status(400).send({ message: "Something went wrong" });
     }
