@@ -2,7 +2,10 @@ const User = require("../models/user");
 const yup = require("yup");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { hashPassword, comparePassword } = require("../libs/helpers/passwordHasher");
+const {
+  hashPassword,
+  comparePassword,
+} = require("../libs/helpers/passwordHasher");
 const Address = require("../models/address");
 const paginate = require("../libs/common/paginate");
 const { Sequelize, Model, where } = require("sequelize");
@@ -31,7 +34,7 @@ const signUp = async (req, res) => {
         .max(16, "Password must be 16 chars max")
         .required("Please enter your password"),
       userProfile: yup.string().optional(),
-      cart_code: yup.string().required('cart code is required'),
+      cart_code: yup.string().required("cart code is required"),
     });
 
     await userSignupSchema.validate({
@@ -58,14 +61,18 @@ const signUp = async (req, res) => {
 
     const isAlreadyExits = await User.findOne({ where: { email } });
 
-    let newCartCode = cartCodeGenerator()
+    let newCartCode = cartCodeGenerator();
 
-    let cartCodeExists = await User.findOne({ where: { cart_code: newCartCode } })
+    let cartCodeExists = await User.findOne({
+      where: { cart_code: newCartCode },
+    });
 
-    while(cartCodeExists){
-        newCartCode = cartCodeGenerator();
-        userData.cart_code = newCartCode;
-        cartCodeExists = await User.findOne({ where: { cart_code: newCartCode } })    
+    while (cartCodeExists) {
+      newCartCode = cartCodeGenerator();
+      userData.cart_code = newCartCode;
+      cartCodeExists = await User.findOne({
+        where: { cart_code: newCartCode },
+      });
     }
 
     if (isAlreadyExits) {
@@ -83,7 +90,6 @@ const signUp = async (req, res) => {
     return res.status(500).send({ message: err.message });
   }
 };
-
 
 // @DESC: SingIn User
 const signIn = async (req, res) => {
@@ -119,7 +125,9 @@ const signIn = async (req, res) => {
       return res.status(401).send({ message: "Invalid email or password." });
     }
   } catch (err) {
-    return res.status(500).send({ message: err.message || "Internal Server Error" });
+    return res
+      .status(500)
+      .send({ message: err.message || "Internal Server Error" });
   }
 };
 
@@ -158,7 +166,9 @@ const updateUser = async (req, res) => {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (err) {
-    return res.status(500).send({ message: err.message || "INternal Server Error" });
+    return res
+      .status(500)
+      .send({ message: err.message || "INternal Server Error" });
   }
 };
 
@@ -185,9 +195,7 @@ const getUser = async (req, res) => {
     });
 
     if (user) {
-      return res
-        .status(200)
-        .send({ message: "Successfully GET", data: user });
+      return res.status(200).send({ message: "Successfully GET", data: user });
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
@@ -242,7 +250,12 @@ const searchItems = async (req, res) => {
       offset: (page - 1) * limit,
     });
 
-    const response2 = paginate(page, searchData?.count, limit, searchData?.rows);
+    const response2 = paginate(
+      page,
+      searchData?.count,
+      limit,
+      searchData?.rows
+    );
 
     if (response?.rows?.length) {
       return res.status(200).send({

@@ -114,7 +114,10 @@ const getAllOrder = async (req, res) => {
       return res.status(404).send({ messsage: "user id not found" });
     }
 
-    const findOrder = await Order.findAll({ where: { userId, order_status: 'delivered' }, order:['createdAt', 'DESC'] });
+    const findOrder = await Order.findAll({
+      where: { userId, order_status: "delivered" },
+      order: ["createdAt", "DESC"],
+    });
 
     if (findOrder?.length) {
       const foodData = await Cart.findAll({
@@ -125,7 +128,10 @@ const getAllOrder = async (req, res) => {
       if (foodData) {
         return res
           .status(200)
-          .send({ messsage: "successfully get", data: { findOrder, foodData } });
+          .send({
+            messsage: "successfully get",
+            data: { findOrder, foodData },
+          });
       }
     } else {
       return res
@@ -148,11 +154,9 @@ const getCurrenrtOrder = async (req, res) => {
     }
 
     const orderData = await Order.findOne({
-      where: { 
+      where: {
         userId,
-        [Op.not]:[
-          {order_status: 'delivered'},
-        ],
+        [Op.not]: [{ order_status: "delivered" }],
       },
       order: [["createdAt", "DESC"]],
     });
@@ -168,8 +172,8 @@ const getCurrenrtOrder = async (req, res) => {
           messsage: "Successfully Fetched",
           data: { orderData, cartData },
         });
-      }else{
-        return res.status(400).send({ messsage: 'no cart data found' })
+      } else {
+        return res.status(400).send({ messsage: "no cart data found" });
       }
     } else {
       return res.status(400).send({ messsage: "no current order found" });
