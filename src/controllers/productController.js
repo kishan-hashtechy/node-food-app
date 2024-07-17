@@ -75,7 +75,7 @@ const updateFood = async (req, res) => {
       status: yup.string().optional(),
     });
 
-    await updateFoodSchema.validate(foodData)
+    await updateFoodSchema.validate(foodData);
 
     const record = await Food.findOne({
       where: {
@@ -124,7 +124,7 @@ const getAllFood = async (req, res) => {
         [Op.and]: [
           {
             category: foodCategory,
-          }
+          },
         ],
       };
     }
@@ -143,9 +143,7 @@ const getAllFood = async (req, res) => {
         data: response2,
       });
     } else {
-      return res
-        .status(404)
-        .send({ message: "No data found" });
+      return res.status(404).send({ message: "No data found" });
     }
   } catch (error) {
     console.log(error);
@@ -162,7 +160,7 @@ const getSingleFood = async (req, res) => {
     const foodId = req?.params?.id;
 
     if (!foodId) {
-      return res.status(400).send({ message: "Successfull get", data: record });
+      return res.status(400).send({ message: "No data found", data: record });
     }
 
     const record = await Food.findOne({
@@ -174,9 +172,7 @@ const getSingleFood = async (req, res) => {
     if (record) {
       return res.status(200).send({ message: "Successful get", data: record });
     } else {
-      return res
-        .status(404)
-        .send({ message: "No data found" });
+      return res.status(404).send({ message: "No data found" });
     }
   } catch (error) {
     return res
@@ -205,9 +201,7 @@ const deleteFood = async (req, res) => {
     if (response) {
       return res.status(200).send({ message: "Food deleted" });
     } else {
-      return res
-        .status(404)
-        .send({ message:"Something went wrong" });
+      return res.status(404).send({ message: "Something went wrong" });
     }
   } catch (error) {
     return res

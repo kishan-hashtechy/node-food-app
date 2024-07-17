@@ -61,28 +61,30 @@ const User = sequelizeInstance.define(
       allowNull: true,
     },
 
-    cart_code:{
-      type:DataTypes.STRING,
-      allowNull: false,
+    cart_code: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      unique: true,
+      defaultValue: "null",
     },
   },
 
   {
     paranoid: true,
-    deletedAt: 'deletedAt',
+    deletedAt: "deletedAt",
 
-    defaultScope:{
-      where:{
+    defaultScope: {
+      where: {
         status: "Active",
       },
     },
-    hooks:{
+    hooks: {
       beforeDestroy: (User) => {
         User.userStatus = "Inactive";
-        User.save()
-      }
-    }
-  },
+        User.save();
+      },
+    },
+  }
 );
 
 // Here pelase check proper relationships working or not...
