@@ -12,13 +12,13 @@ const Cart = sequelizeInstance.define(
       primaryKey: true,
     },
 
-    user_id: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       notEmpty: true,
     },
 
-    food_id: {
+    foodId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

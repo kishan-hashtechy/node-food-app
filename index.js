@@ -35,6 +35,10 @@ async function dbConnect() {
     sequelizeInstance.sync({ force: false });
     // await User.sync();
     // await Order.sync();
+
+    app.listen(process.env.PORT || 5000, () => {
+      console.log(`Server is running on port: ${process.env.PORT}`);
+    });
     console.log("Connected to DB");
   } catch (error) {
     console.error("Failed to connect DB", error);
@@ -42,7 +46,7 @@ async function dbConnect() {
 }
 dbConnect();
 
-initApp();
+// initApp();
 
 app.get("/", (req, res) => {
   res.status(200).send({ code: 200, message: "success" });

@@ -27,7 +27,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 router.post("/add-food", upload.single("foodImage"), addFood);
-router.patch("/update-food/:id", upload.single("foodImage"), updateFood);
+router.put("/update-food/:id", upload.single("foodImage"), updateFood);
 router.get("/getall-food", getAllFood);
 router.get("/getsingle-food/:id", getSingleFood);
 router.delete("/delete-food/:id", deleteFood);

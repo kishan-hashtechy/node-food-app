@@ -69,7 +69,7 @@ const updateCart = async (req, res) => {
     if (!cartId) {
       return res.status(400).send({ message: "Cart Id not found" });
     }
-
+    console.log(cartId);
     const updateCartSchema = yup.object({
       no_of_item: yup.number().required("No of itesm is requires"),
     });
@@ -131,7 +131,7 @@ const getCart = async (req, res) => {
   }
 };
 
-const deleteCartItem = async (req, res) => {
+const deleteCart = async (req, res) => {
   try {
     const foodId = req?.query?.foodId;
     const cartId = req?.query?.cartId;
@@ -161,4 +161,4 @@ const deleteCartItem = async (req, res) => {
   }
 };
 
-module.exports = { addCart, updateCart, getCart, deleteCartItem };
+module.exports = { addCart, updateCart, getCart, deleteCart };

@@ -12,7 +12,6 @@ const {
 
 router.post("/add-cart", auth, addCart);
 router.put("/update-cart", auth, updateCart);
-// router.get("/getall-cart", auth, getAllCart);
 router.get("/get-cart", auth, getCart);
 router.delete("/delete-cart", auth, deleteCart);
 
