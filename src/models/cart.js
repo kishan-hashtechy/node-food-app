@@ -51,6 +51,6 @@ const Cart = sequelizeInstance.define(
   }
 );
 
-Cart.belongsTo(Food, { foreignKey: "foodId", targetKey: "id" });
+Cart.belongsTo(Food, { foreignKey: "food_id", targetKey: "id" });
 
 module.exports = Cart;

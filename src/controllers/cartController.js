@@ -27,7 +27,7 @@ const addCart = async (req, res) => {
     });
 
     const isFoodExists = await Cart.findOne({
-      where: { foodId, cart_code: findCartCode?.cart_code },
+      where: { food_id:foodId, cart_code: findCartCode?.cart_code },
     });
 
     if (isFoodExists) {
@@ -35,8 +35,8 @@ const addCart = async (req, res) => {
     }
 
     const cartData = {
-      userId,
-      foodId,
+      user_id:userId,
+      food_id:foodId,
       no_of_item,
       cart_code: findCartCode?.cart_code,
     };
@@ -144,7 +144,7 @@ const deleteCartItem = async (req, res) => {
     }
 
     const deleteFood = await Cart.destroy({
-      where: { foodId, userId, id: cartId },
+      where: { food_id:foodId, user_id:userId, id: cartId },
     });
 
     if (deleteFood) {

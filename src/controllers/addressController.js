@@ -1,6 +1,7 @@
 const Address = require("../models/address");
 const yup = require("yup");
 const jwt = require("jsonwebtoken");
+const { Op } = require("sequelize");
 
 const addAddress = async (req, res) => {
   try {
@@ -12,6 +13,7 @@ const addAddress = async (req, res) => {
       type,
       receiverName,
       receiverNumber,
+      defaultAddress,
     } = req.body;
 
     const userId = req?.userId;
@@ -28,6 +30,7 @@ const addAddress = async (req, res) => {
       type: yup.string().required("Please enter your address type"),
       recuverName: yup.string(),
       receiverNumber: yup.string(),
+      defaultAddress: yup.boolean().required("Please enter default address")
     });
 
     await addAddressSchema.validate(req.body);
@@ -41,20 +44,37 @@ const addAddress = async (req, res) => {
       type,
       receiverName,
       receiverNumber,
+      defaultAddress,
     };
 
-    const countAddress = await Address.findAndCountAll({ where: { userId } })
+    const countAddress = await Address.findAndCountAll({ where: { userId } });
 
     if(countAddress >= 5){
-      return res.status(400).send({ message: "Can't add more than five address" })
+      return res.status(400).send({ message: "Can't add more than five address" });
     }
 
-    const response = await Address.create(addressData);
+    if(countAddress.count > 0 && defaultAddress === "true"){
+      let getId = [];
+      countAddress?.rows.filter((item)=> getId.push(item?.id));
+  
+       const updateAddress = await Address.update(
+        {defaultAddress : false}, 
+        { 
+          where: {
+            id: getId,
+          }
+       })
 
-    if (response) {
+    }else if(countAddress.count === 0){
+      addressData.defaultAddress = true
+    }
+
+    const createAddress = await Address.create(addressData);
+
+    if (createAddress) {
       return res
         .status(200)
-        .send({ message: "Address add successfully", response });
+        .send({ message: "Address add successfully", createAddress });
     } else {
       return res.status(400).send({ message: "Something went wrong" });
     }
@@ -66,7 +86,8 @@ const addAddress = async (req, res) => {
 //UPDATE
 const updateAddress = async (req, res) => {
   try {
-    const addressId = req?.params?.id;
+    const userId = req?.userId;
+    const addressId = parseInt(req?.params?.id);
 
     if (!addressId) {
       return res.status(400).send({ message: "address id not found" });
@@ -80,21 +101,49 @@ const updateAddress = async (req, res) => {
       type,
       receiverName,
       receiverNumber,
+      defaultAddress
     } = req.body;
 
     const data = req.body;
 
-    const record = await Address.findOne({
+    const findAllAddress = await Address.findAll({
       where: {
-        id: addressId,
-      },
-    });
+        userId,
+      }
+    })
 
-    if (record) {
-      const response = await Address.update(data, { where: { id: addressId } });
+    const findAddress = findAllAddress.filter((data) => data.id === addressId)
 
-      if (response) {
-        return res.status(200).send({ message: "Address Update !!", response });
+    if(data?.defaultAddress && findAllAddress?.length > 0 && defaultAddress === "true"){
+      let getId = [];
+      findAllAddress?.filter((item)=> getId.push(item?.id));
+  
+       const updateAddress = await Address.update(
+        {defaultAddress : false}, 
+        { 
+          where: {
+            id: getId,
+            [Op.not]:{
+              id: addressId,
+            }
+          }
+       })
+
+    }else if(data?.defaultAddress && findAllAddress.length === 0){
+      data.defaultAddress = true
+    }else if(data?.defaultAddress === "false" && findAllAddress?.length > 0){
+      const preValue = findAddress[0]?.defaultAddress;
+      
+      if(preValue){
+        return res.status(400).send({ message: "there should be atleast on default address" });
+      }
+    }
+
+    if (findAddress) {
+      const updateData = await Address.update(data, { where: { id: addressId } });
+
+      if (updateData) {
+        return res.status(200).send({ message: "Address Update !!", updateData });
       }
     } else {
       return res
@@ -102,6 +151,7 @@ const updateAddress = async (req, res) => {
         .send({ message: "No record found" });
     }
   } catch (error) {
+    console.log(error)
     return res
       .status(500)
       .send({ message: error.message || "Internal Server Error" });
@@ -121,6 +171,7 @@ const getAllAddress = async (req, res) => {
       where: {
         userId,
       },
+      order: [['defaultAddress','DESC']]
     });
 
     if (record?.rows?.length >= 1) {
