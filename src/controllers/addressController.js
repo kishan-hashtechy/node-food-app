@@ -47,10 +47,10 @@ const addAddress = async (req, res) => {
       defaultAddress,
     };
 
-    const countAddress = await Address.findAndCountAll({ where: { userId } })
+    const countAddress = await Address.findAndCountAll({ where: { userId } });
 
     if(countAddress >= 5){
-      return res.status(400).send({ message: "Can't add more than five address" })
+      return res.status(400).send({ message: "Can't add more than five address" });
     }
 
     if(countAddress.count > 0 && defaultAddress === "true"){
@@ -105,12 +105,6 @@ const updateAddress = async (req, res) => {
     } = req.body;
 
     const data = req.body;
-
-    // const findAddress = await Address.findOne({
-    //   where: {
-    //     id: addressId,
-    //   },
-    // });
 
     const findAllAddress = await Address.findAll({
       where: {

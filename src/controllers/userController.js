@@ -19,7 +19,7 @@ const { cartCodeGenerator } = require("../libs/common/cartCodeGenerator");
 
 const signUp = async (req, res) => {
   try {
-    const { fullName, email, password, userProfile } = req.body;
+    const { fullName, email, password, userProfile, mobileNumber } = req.body;
     const cart_code = cartCodeGenerator();
 
     const userSignupSchema = yup.object({
@@ -35,6 +35,7 @@ const signUp = async (req, res) => {
         .required("Please enter your password"),
       userProfile: yup.string().optional(),
       cart_code: yup.string().required("cart code is required"),
+      mobileNumber: yup.string().required("Pleas ent mobile number"),
     });
 
     await userSignupSchema.validate({
@@ -43,6 +44,7 @@ const signUp = async (req, res) => {
       password,
       userProfile,
       cart_code,
+      mobileNumber,
     });
 
     const hashedPassword = await hashPassword(password);
@@ -53,6 +55,7 @@ const signUp = async (req, res) => {
       password: hashedPassword,
       status: "Active",
       cart_code,
+      mobileNumber,
     };
 
     if (userProfile) {
@@ -189,6 +192,7 @@ const getUser = async (req, res) => {
         model: Address,
         where: {
           userId,
+          defaultAddress: true,
         },
       },
       order: [[Address, "createdAt", "DESC"]],

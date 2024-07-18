@@ -6,12 +6,12 @@ const {
   addCart,
   updateCart,
   getCart,
-  deleteCart,
+  deleteCartItem,
 } = require("../controllers/cartController");
 
 router.post("/add-cart", auth, addCart);
 router.patch("/update-cart", auth, updateCart);
 router.get("/get-cart", auth, getCart);
-router.delete("/delete-cart", auth, deleteCart);
+router.delete("/delete-cart", auth, deleteCartItem);
 
 module.exports = router;
