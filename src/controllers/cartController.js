@@ -2,15 +2,16 @@ const Cart = require("../models/cart");
 const Food = require("../models/food");
 const User = require("../models/user");
 const yup = require("yup");
+const Wishlist = require("../models/wishlist");
 
 const addCart = async (req, res) => {
   try {
     const userId = req?.userId;
     const foodId = req?.query?.foodId;
-    const no_of_item = req.query.no_of_item || 1;
+    const no_of_item = req?.query?.no_of_item || 1;
 
-    if (!userId || !foodId) {
-      return res.status(400).send({ message: "user id or food Id not found" });
+    if (!foodId) {
+      return res.status(400).send({ message: "food Id not found" });
     }
 
     const findFood = await Food.findOne({ where: { id: foodId } });
@@ -40,6 +41,12 @@ const addCart = async (req, res) => {
       no_of_item,
       cart_code: findCartCode?.cart_code,
     };
+
+    const findWishlist = await Wishlist.findOne({ where: { user_id: userId, food_id: foodId } })
+
+    if(findWishlist){
+      Wishlist.destroy({ where: { user_id: userId, food_id: foodId } })
+    }
 
     if (findCartCode) {
       const createCart = await Cart.create(cartData);
@@ -111,6 +118,7 @@ const getCart = async (req, res) => {
     if (findCartCode) {
       const getCartItems = await Cart.findAll({
         where: { cart_code: findCartCode?.cart_code },
+        order: [['createdAt','ASC']],
         include: [Food],
       });
 
@@ -148,7 +156,7 @@ const deleteCartItem = async (req, res) => {
     });
 
     if (deleteFood) {
-      return res.status(200).send({ message: "Successfully item removed" });
+      return res.status(200).send({ message: "Item removed from cart!" });
     } else {
       return res
         .status(400)

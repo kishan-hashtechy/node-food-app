@@ -2,6 +2,7 @@ const Address = require("../models/address");
 const yup = require("yup");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
+const User = require("../models/user");
 
 const addAddress = async (req, res) => {
   try {
@@ -151,7 +152,6 @@ const updateAddress = async (req, res) => {
         .send({ message: "No record found" });
     }
   } catch (error) {
-    console.log(error)
     return res
       .status(500)
       .send({ message: error.message || "Internal Server Error" });

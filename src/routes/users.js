@@ -18,7 +18,6 @@ const storage = multer.diskStorage({
     const path = `./public/profile_img/`;
     fs.mkdirSync(path, { recursive: true });
     return cb(null, path);
-    // cb(null, "public/profile_img/");
   },
   filename: function (req, file, cb) {
     req.body.userProfile =
@@ -31,7 +30,7 @@ const upload = multer({ storage: storage });
 
 router.post("/signup", upload.single("userProfile"),  signUp);
 router.post("/signin", signIn);
-router.put("/update-user/:id", upload.single("userProfile"), updateUser);
+router.patch("/update-user", auth, upload.single("userProfile"), updateUser);
 router.get("/get-user", auth, getUser);
 router.delete("/delete-user/:id", deleteUser);
 router.get("/search-items", searchItems)

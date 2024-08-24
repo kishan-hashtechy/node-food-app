@@ -15,12 +15,6 @@ const createOrder = async (req, res) => {
       return res.status(400).status({ messsage: "user id not found" });
     }
 
-    // const createOrderSchema = yup.object({
-    //   payment_method: yup.string().required("payment method is required"),
-    // });
-
-    // await createOrderSchema.validate({ payment_method });
-
     const findCartCode = await User.findOne({
       where: { id: userId },
       attributes: ["cart_code"],
@@ -100,7 +94,6 @@ const createOrder = async (req, res) => {
       return res.status(404).send({ messsage: "No data found" });
     }
   } catch (err) {
-    console.log(err)
     return res
       .status(500)
       .send({ messsage: err.messsage || "Internal Server Error" });

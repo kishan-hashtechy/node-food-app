@@ -46,8 +46,10 @@ const Cart = sequelizeInstance.define(
     paranoid: true,
     deletedAt: "deletedAt",
     defaultScope: {
-      cartStatus: "pending",
-    },
+      where: {
+        cartStatus: "pending",
+      },
+    }
   }
 );
 

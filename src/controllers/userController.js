@@ -2,16 +2,13 @@ const User = require("../models/user");
 const yup = require("yup");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const {
-  hashPassword,
-  comparePassword,
-} = require("../libs/helpers/passwordHasher");
+const { hashPassword, comparePassword } = require("../libs/helpers/passwordHasher");
 const Address = require("../models/address");
 const paginate = require("../libs/common/paginate");
-const { Sequelize, Model, where } = require("sequelize");
 const { Op } = require("sequelize");
 const Food = require("../models/food");
 const { cartCodeGenerator } = require("../libs/common/cartCodeGenerator");
+const Wishlist = require("../models/wishlist");
 
 //@desc User SIGNUP
 //@route POST / api/user/signup
@@ -120,9 +117,12 @@ const signIn = async (req, res) => {
         { expiresIn: 24 * 60 * 60 }
       );
 
+      const getWishlist = await Wishlist.findAll({ where: { user_id: user.id }, attributes: ['food_id'] })
+
       return res.status(200).send({
         message: "Login Successfully",
         data: { accessToken, user },
+        wishlist: getWishlist,
       });
     } else {
       return res.status(401).send({ message: "Invalid email or password." });
@@ -138,7 +138,7 @@ const signIn = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const userId = req?.params?.id;
+    const userId = req?.userId;
 
     const {
       fullName,
@@ -147,7 +147,6 @@ const updateUser = async (req, res) => {
       mobileNumber,
       gender,
       userProfile,
-      address,
       dob,
     } = req.body;
 
@@ -204,7 +203,6 @@ const getUser = async (req, res) => {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (error) {
-    console.log(error);
     return res
       .status(500)
       .send({ message: error.message || "Internal Server Error" });

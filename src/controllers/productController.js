@@ -1,7 +1,9 @@
 const Food = require("../models/food");
 const yup = require("yup");
 const paginate = require("../libs/common/paginate");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
+const User = require("../models/user");
+const Wishlist = require("../models/wishlist");
 
 const addFood = async (req, res) => {
   try {
@@ -135,18 +137,24 @@ const getAllFood = async (req, res) => {
       offset: (page - 1) * limit,
     });
 
+    const getFoodCategories = await Food.findAll({
+      attributes: [
+        [Sequelize.fn("DISTINCT", Sequelize.col("category")), "category"],
+      ],
+    });
+
     const response2 = paginate(page, getItems.count, limit, getItems.rows);
 
     if (getItems && getItems?.rows?.length >= 1) {
       return res.status(200).send({
         message: "Get food successfully",
         data: response2,
+        category: getFoodCategories,
       });
     } else {
       return res.status(404).send({ message: "No data found" });
     }
   } catch (error) {
-    console.log(error);
     return res
       .status(500)
       .send({ message: error.message || "Internal server error!!" });
@@ -157,10 +165,10 @@ const getAllFood = async (req, res) => {
 
 const getSingleFood = async (req, res) => {
   try {
-    const foodId = req?.params?.id;
+    const foodId = req?.query?.foodId;
 
     if (!foodId) {
-      return res.status(400).send({ message: "No data found", data: record });
+      return res.status(400).send({ message: "foodId not found" });
     }
 
     const record = await Food.findOne({
@@ -170,7 +178,12 @@ const getSingleFood = async (req, res) => {
     });
 
     if (record) {
-      return res.status(200).send({ message: "Successful get", data: record });
+      return res
+        .status(200)
+        .send({
+          message: "Successful get",
+          data: record,
+        });
     } else {
       return res.status(404).send({ message: "No data found" });
     }
