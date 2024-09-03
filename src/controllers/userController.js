@@ -9,6 +9,7 @@ const { Op } = require("sequelize");
 const Food = require("../models/food");
 const { cartCodeGenerator } = require("../libs/common/cartCodeGenerator");
 const Wishlist = require("../models/wishlist");
+const Cart = require("../models/cart");
 
 //@desc User SIGNUP
 //@route POST / api/user/signup
@@ -119,10 +120,13 @@ const signIn = async (req, res) => {
 
       const getWishlist = await Wishlist.findAll({ where: { user_id: user.id }, attributes: ['food_id'] })
 
+      const cartData = await Cart.findAndCountAll({ where: { user_id: user.id, cart_code: user.cart_code }, attributes: ['food_id'] })
+
       return res.status(200).send({
         message: "Login Successfully",
-        data: { accessToken, user },
+        data: { accessToken },
         wishlist: getWishlist,
+        cart: cartData,
       });
     } else {
       return res.status(401).send({ message: "Invalid email or password." });

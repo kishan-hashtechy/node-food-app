@@ -2,8 +2,6 @@ const Food = require("../models/food");
 const yup = require("yup");
 const paginate = require("../libs/common/paginate");
 const { Op, Sequelize } = require("sequelize");
-const User = require("../models/user");
-const Wishlist = require("../models/wishlist");
 
 const addFood = async (req, res) => {
   try {

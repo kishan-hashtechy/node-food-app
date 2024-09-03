@@ -28,7 +28,7 @@ const addCart = async (req, res) => {
     });
 
     const isFoodExists = await Cart.findOne({
-      where: { food_id:foodId, cart_code: findCartCode?.cart_code },
+      where: { food_id: foodId, cart_code: findCartCode?.cart_code },
     });
 
     if (isFoodExists) {
@@ -36,16 +36,18 @@ const addCart = async (req, res) => {
     }
 
     const cartData = {
-      user_id:userId,
-      food_id:foodId,
+      user_id: userId,
+      food_id: foodId,
       no_of_item,
       cart_code: findCartCode?.cart_code,
     };
 
-    const findWishlist = await Wishlist.findOne({ where: { user_id: userId, food_id: foodId } })
+    const findWishlist = await Wishlist.findOne({
+      where: { user_id: userId, food_id: foodId },
+    });
 
-    if(findWishlist){
-      Wishlist.destroy({ where: { user_id: userId, food_id: foodId } })
+    if (findWishlist) {
+      Wishlist.destroy({ where: { user_id: userId, food_id: foodId } });
     }
 
     if (findCartCode) {
@@ -118,17 +120,13 @@ const getCart = async (req, res) => {
     if (findCartCode) {
       const getCartItems = await Cart.findAll({
         where: { cart_code: findCartCode?.cart_code },
-        order: [['createdAt','ASC']],
+        order: [["createdAt", "ASC"]],
         include: [Food],
       });
 
-      if (getCartItems?.length) {
-        return res
-          .status(200)
-          .send({ message: "Successfully fetched data", data: getCartItems });
-      } else {
-        return res.status(400).send({ message: "No data found" });
-      }
+      return res
+        .status(200)
+        .send({ message: "Successfully fetched data", data: getCartItems.length ? getCartItems : [] });
     } else {
       return res.status(400).send({ message: "No User Data Found" });
     }
@@ -152,7 +150,7 @@ const deleteCartItem = async (req, res) => {
     }
 
     const deleteFood = await Cart.destroy({
-      where: { food_id:foodId, user_id:userId, id: cartId },
+      where: { food_id: foodId, user_id: userId, id: cartId },
     });
 
     if (deleteFood) {

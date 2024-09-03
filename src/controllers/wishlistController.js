@@ -37,7 +37,7 @@ const createWishlist = async (req, res) => {
 
 const getWishlist = async (req, res) => {
     try{
-        const food_id = JSON.parse(req?.query?.food_id);
+        const food_id = req?.query?.food_id || [];
 
         if(!food_id){
             return res.status(400).send({ message: 'foodId not found' });
