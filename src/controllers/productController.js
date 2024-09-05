@@ -104,7 +104,7 @@ const updateFood = async (req, res) => {
 const getAllFood = async (req, res) => {
   try {
     const foodCategory = req?.query?.category;
-    const limit = parseInt(req.query.limit) || 5;
+    const limit = parseInt(req.query.limit) || 6;
     const page = parseInt(req.query.page) || 1;
     const search = req.query.search || "";
 
