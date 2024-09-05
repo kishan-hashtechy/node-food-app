@@ -104,12 +104,12 @@ const signIn = async (req, res) => {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(404).send({ message: "No user found" });
+      return res.status(401).send({ message: "Invalid email or password" });
     }
 
     const isPasswordValid = await comparePassword(password, user?.password);
 
-    if (user && isPasswordValid) {
+    if (isPasswordValid) {
       const accessToken = jwt.sign(
         {
           user: { email: user.email, id: user.id },
@@ -129,7 +129,7 @@ const signIn = async (req, res) => {
         cart: cartData,
       });
     } else {
-      return res.status(401).send({ message: "Invalid email or password." });
+      return res.status(401).send({ message: "Invalid email or password" });
     }
   } catch (err) {
     return res
@@ -191,14 +191,6 @@ const getUser = async (req, res) => {
       where: {
         id: userId,
       },
-      include: {
-        model: Address,
-        where: {
-          userId,
-          defaultAddress: true,
-        },
-      },
-      order: [[Address, "createdAt", "DESC"]],
     });
 
     if (user) {
