@@ -11,7 +11,7 @@ const Order = sequelizeInstance.define(
       primaryKey: true,
     },
 
-    userId: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       refrence: {
@@ -51,6 +51,7 @@ const Order = sequelizeInstance.define(
     payment_method: {
       type: DataTypes.ENUM("Cash", "Card"),
       allowNull: false,
+      defaultValue: "Cash",
     },
   },
   {

@@ -54,6 +54,12 @@ const Address = sequelizeInstance.define("Address", {
       key: "id",
     },
   },
+
+  defaultAddress: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  }
 },
 {
   paranoid: true,

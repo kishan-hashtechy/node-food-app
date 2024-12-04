@@ -46,11 +46,13 @@ const Cart = sequelizeInstance.define(
     paranoid: true,
     deletedAt: "deletedAt",
     defaultScope: {
-      cartStatus: "pending",
-    },
+      where: {
+        cartStatus: "pending",
+      },
+    }
   }
 );
 
-Cart.belongsTo(Food, { foreignKey: "foodId", targetKey: "id" });
+Cart.belongsTo(Food, { foreignKey: "food_id", targetKey: "id" });
 
 module.exports = Cart;

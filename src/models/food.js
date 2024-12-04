@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelizeInstance = require("../libs/common/connect");
-const Cart = require("./cart");
+const Wishlist = require("./wishlist");
 
 const Food = sequelizeInstance.define(
   "Food",
@@ -55,6 +55,12 @@ const Food = sequelizeInstance.define(
     allowNull: false,
     defaultValue: "Active",
   },
+  
+  is_in_wishlist: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  }
 },{
   paranoid: true,
   deletedAt: 'deletedAt',
@@ -64,7 +70,5 @@ const Food = sequelizeInstance.define(
     },
   }
 });
-
-// Food.hasMany(Cart, {foreignKey: 'foodId', sourceKey:'food'});
 
 module.exports = Food;

@@ -15,19 +15,13 @@ const createOrder = async (req, res) => {
       return res.status(400).status({ messsage: "user id not found" });
     }
 
-    const createOrderSchema = yup.object({
-      payment_method: yup.string().required("payment method is required"),
-    });
-
-    await createOrderSchema.validate({ payment_method });
-
     const findCartCode = await User.findOne({
       where: { id: userId },
       attributes: ["cart_code"],
     });
 
     const cartData = await Cart.findAll({
-      where: { userId, cart_code: findCartCode?.cart_code },
+      where: { user_id: userId, cart_code: findCartCode?.cart_code },
       attributes: ["no_of_item", "cart_code"],
       include: [Food],
     });
@@ -47,7 +41,7 @@ const createOrder = async (req, res) => {
     });
 
     const orderData = {
-      userId,
+      user_id: userId,
       total_price,
       total_quantity,
       cart_code: findCartCode?.cart_code,
@@ -84,12 +78,12 @@ const createOrder = async (req, res) => {
           if (createOrderTable) {
             return res
               .status(200)
-              .send({ messsage: "Order added successfully" });
+              .send({ message: "Order added successfully" });
           }
         } else {
           return res
             .status(400)
-            .send({ messsage: "Something occured while creating order" });
+            .send({ message: "Something occured while creating order" });
         }
       } else {
         return res
@@ -115,7 +109,7 @@ const getAllOrder = async (req, res) => {
     }
 
     const findOrder = await Order.findAll({
-      where: { userId, order_status: "delivered" },
+      where: { user_id: userId, order_status: "delivered" },
       order: ["createdAt", "DESC"],
     });
 
@@ -155,7 +149,7 @@ const getCurrenrtOrder = async (req, res) => {
 
     const orderData = await Order.findOne({
       where: {
-        userId,
+        user_id: userId,
         [Op.not]: [{ order_status: "delivered" }],
       },
       order: [["createdAt", "DESC"]],

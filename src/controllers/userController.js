@@ -2,16 +2,14 @@ const User = require("../models/user");
 const yup = require("yup");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const {
-  hashPassword,
-  comparePassword,
-} = require("../libs/helpers/passwordHasher");
+const { hashPassword, comparePassword } = require("../libs/helpers/passwordHasher");
 const Address = require("../models/address");
 const paginate = require("../libs/common/paginate");
-const { Sequelize, Model, where } = require("sequelize");
 const { Op } = require("sequelize");
 const Food = require("../models/food");
 const { cartCodeGenerator } = require("../libs/common/cartCodeGenerator");
+const Wishlist = require("../models/wishlist");
+const Cart = require("../models/cart");
 
 //@desc User SIGNUP
 //@route POST / api/user/signup
@@ -19,7 +17,7 @@ const { cartCodeGenerator } = require("../libs/common/cartCodeGenerator");
 
 const signUp = async (req, res) => {
   try {
-    const { fullName, email, password, userProfile } = req.body;
+    const { fullName, email, password, userProfile, mobileNumber } = req.body;
     const cart_code = cartCodeGenerator();
 
     const userSignupSchema = yup.object({
@@ -35,6 +33,7 @@ const signUp = async (req, res) => {
         .required("Please enter your password"),
       userProfile: yup.string().optional(),
       cart_code: yup.string().required("cart code is required"),
+      mobileNumber: yup.string().required("Pleas ent mobile number"),
     });
 
     await userSignupSchema.validate({
@@ -43,6 +42,7 @@ const signUp = async (req, res) => {
       password,
       userProfile,
       cart_code,
+      mobileNumber,
     });
 
     const hashedPassword = await hashPassword(password);
@@ -53,6 +53,7 @@ const signUp = async (req, res) => {
       password: hashedPassword,
       status: "Active",
       cart_code,
+      mobileNumber,
     };
 
     if (userProfile) {
@@ -82,7 +83,7 @@ const signUp = async (req, res) => {
     const createUser = await User.create(userData);
 
     if (createUser) {
-      return res.status(200).send({ message: "Signup successfully", response });
+      return res.status(200).send({ message: "Signup successfully", createUser });
     } else {
       return res.status(400).send({ message: "Something went wrong" });
     }
@@ -117,9 +118,15 @@ const signIn = async (req, res) => {
         { expiresIn: 24 * 60 * 60 }
       );
 
+      const getWishlist = await Wishlist.findAll({ where: { user_id: user.id }, attributes: ['food_id'] })
+
+      const cartData = await Cart.findAndCountAll({ where: { user_id: user.id, cart_code: user.cart_code }, attributes: ['food_id'] })
+
       return res.status(200).send({
         message: "Login Successfully",
-        data: { accessToken, user },
+        data: { accessToken },
+        wishlist: getWishlist,
+        cart: cartData,
       });
     } else {
       return res.status(401).send({ message: "Invalid email or password." });
@@ -135,7 +142,7 @@ const signIn = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const userId = req?.params?.id;
+    const userId = req?.userId;
 
     const {
       fullName,
@@ -144,7 +151,6 @@ const updateUser = async (req, res) => {
       mobileNumber,
       gender,
       userProfile,
-      address,
       dob,
     } = req.body;
 
@@ -160,7 +166,7 @@ const updateUser = async (req, res) => {
       const userData = await User.update(data, { where: { id: userId } });
 
       if (userData) {
-        return res.status(200).send({ message: "User Updated!!", response });
+        return res.status(200).send({ message: "User Updated!!", userData });
       }
     } else {
       return res.status(404).send({ message: "Something went wrong !!!" });
@@ -189,6 +195,7 @@ const getUser = async (req, res) => {
         model: Address,
         where: {
           userId,
+          defaultAddress: true,
         },
       },
       order: [[Address, "createdAt", "DESC"]],
@@ -200,7 +207,6 @@ const getUser = async (req, res) => {
       return res.status(404).send({ message: "Something went wrong !!!" });
     }
   } catch (error) {
-    console.log(error);
     return res
       .status(500)
       .send({ message: error.message || "Internal Server Error" });
@@ -250,18 +256,18 @@ const searchItems = async (req, res) => {
       offset: (page - 1) * limit,
     });
 
-    const response2 = paginate(
+    const paginatedResult = paginate(
       page,
       searchData?.count,
       limit,
       searchData?.rows
     );
 
-    if (response?.rows?.length) {
+    if (searchData?.rows?.length) {
       return res.status(200).send({
         message: "Search successful",
-        data: response2?.data,
-        count: response2?.data?.length,
+        data: paginatedResult?.data,
+        count: paginatedResult?.data?.length,
       });
     } else {
       return res.status(404).send({ message: "No data found" });
